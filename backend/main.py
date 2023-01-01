@@ -1,16 +1,23 @@
-# This is a sample Python script.
+from http.server import HTTPServer
+import time
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from server import GameServer
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+hostName = "localhost"
+serverPort = 8080
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def main():
+    webServer = HTTPServer((hostName, serverPort), GameServer)
+    print("Server started http://%s:%s" % (hostName, serverPort))
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    try:
+        webServer.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+    webServer.server_close()
+
+
+if __name__ == "__main__":
+    main()
