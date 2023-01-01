@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import 'ui/battle/enemy_status.dart';
 
 void main() {
-  runApp(const MyApp());
+ runApp(const EnemyStatus());
 }
 
 class MyApp extends StatelessWidget {
@@ -10,6 +13,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    debugPaintSizeEnabled = true;
     return MaterialApp(
       title: 'Pluwar',
       theme: ThemeData(
@@ -94,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             const Text(
               'You have pushed the button this many times:',
