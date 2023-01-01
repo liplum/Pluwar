@@ -1,23 +1,16 @@
-from http.server import HTTPServer
-import time
-
-from server import GameServer
-
-hostName = "localhost"
-serverPort = 8080
+import asyncio
+import websockets
+from websockets import WebSocketServerProtocol
 
 
-def main():
-    webServer = HTTPServer((hostName, serverPort), GameServer)
-    print("Server started http://%s:%s" % (hostName, serverPort))
-
-    try:
-        webServer.serve_forever()
-    except KeyboardInterrupt:
-        pass
-
-    webServer.server_close()
+async def echo(websocket: WebSocketServerProtocol):
+    async for message in websocket:
+        print(message)
 
 
-if __name__ == "__main__":
-    main()
+async def main():
+    async with websockets.serve(echo, "localhost", 8765):
+        await asyncio.Future()  # run forever
+
+
+asyncio.run(main())

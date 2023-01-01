@@ -13,12 +13,21 @@ class Action(Protocol):
     type: ActionType
     amount: float
 
+    def toPayload(self) -> dict:
+        pass
+
 
 class DamageAction(Action):
     type = ActionType.Damage
 
     def __init__(self, amount: float):
         self.amount = amount
+
+    def toPayload(self) -> dict:
+        return {
+            "type": "damage",
+            "amount": self.amount
+        }
 
 
 class BattleContext:
