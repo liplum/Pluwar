@@ -1,5 +1,19 @@
-class Skill:
+class BattleContext:
     pass
+
+
+class SkillContext:
+    def __init__(self):
+        self.battle: BattleContext
+        self.target: ElfEntity
+
+
+class Skill:
+    def __init__(self):
+        pass
+
+    def perform(self, ctx: SkillContext):
+        pass
 
 
 EmptySkill = Skill()
