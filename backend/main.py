@@ -3,13 +3,13 @@ import websockets
 from websockets import WebSocketServerProtocol
 
 
-async def echo(websocket: WebSocketServerProtocol):
+async def handle(websocket: WebSocketServerProtocol):
     async for message in websocket:
         print(message)
 
 
 async def main():
-    async with websockets.serve(echo, "localhost", 8765):
+    async with websockets.serve(handle, "localhost", 8765):
         await asyncio.Future()  # run forever
 
 

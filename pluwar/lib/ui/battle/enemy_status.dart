@@ -25,7 +25,7 @@ class EnemyStatus extends StatelessWidget{
 }
 
 
-/*
+
 class BloodBar extends StatelessWidget{
   const BloodBar({super.key});
 
@@ -52,4 +52,4 @@ class BloodBar extends StatelessWidget{
 
 }
 
- */
+
