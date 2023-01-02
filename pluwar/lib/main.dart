@@ -29,6 +29,6 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: const MenuPage());
+        home: const AlliedStatus());
   }
 }
