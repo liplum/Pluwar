@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'ui/battle/enemy_status.dart';
-import 'ui/battle/own_status.dart';
+import 'ui/battle/battle_status.dart';
 import 'ui/main/menu.dart';
 
 void main() {
