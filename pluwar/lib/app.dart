@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:pluwar/ui/battle/battle_menu.dart';
 import 'ui/main/menu.dart';
+
 
 class PluwarApp extends StatelessWidget {
   const PluwarApp({super.key});
@@ -14,6 +16,6 @@ class PluwarApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const MenuPage());
+        home: const BattleMenu());
   }
 }
