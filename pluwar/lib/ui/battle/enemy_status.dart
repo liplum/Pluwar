@@ -7,14 +7,10 @@ class EnemyStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white),
       alignment: Alignment.topLeft,
-      child: Container(
-        width: 400,
-        height: 100,
-        color: Colors.grey,
-        child: EnemyHPBar(),
-        padding: const EdgeInsets.all(10),
+      child: const HealthBar(
+        currentHealth: 400,
+        maxHealth: 1200,
       ),
     );
   }
@@ -22,27 +18,24 @@ class EnemyStatus extends StatelessWidget {
 
 class EnemyHPBar extends StatelessWidget {
   const EnemyHPBar({super.key});
+class HealthBar extends StatelessWidget {
+  final double currentHealth;
+  final double maxHealth;
+
+  const HealthBar({
+    super.key,
+    required this.currentHealth,
+    required this.maxHealth,
+  });
+
+  double get progress => currentHealth / maxHealth;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: const [
-        Text(
-          "12345",
-          style: TextStyle(
-            fontSize: 15,
-            color: Colors.black,
-          ),
-        ),
-        Center(
-            child: LinearProgressIndicator(
-          value: 0.1,
-          backgroundColor: Colors.black,
-          color: Colors.red,
-          minHeight: 15,
-        ))
-      ],
+    return LinearProgressIndicator(
+      minHeight: 20,
+      value: progress,
+      color: Colors.redAccent,
     );
   }
 }
