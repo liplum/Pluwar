@@ -17,10 +17,10 @@ async def handle(websocket: WebSocketServerProtocol):
     async for message in websocket:
         try:
             datapack = json.loads(message)
+            if isinstance(datapack, dict):
+                await pluwar.ctx.onJsonMessage(datapack)
         except Exception as e:
             print(e)
-            continue
-        pluwar.ctx.onJsonMessage(datapack)
 
 
 async def readConfig() -> dict:
@@ -32,11 +32,15 @@ async def readConfig() -> dict:
         return defaultConfig
 
 
-async def main():
+async def serve():
     config = await readConfig()
     pluwar.ctx.config = config
     async with websockets.serve(handle, config["ip"], config["port"]):
         await asyncio.Future()  # run forever
 
 
-asyncio.run(main())
+async def eventLoop():
+    pass
+
+
+asyncio.run(serve())

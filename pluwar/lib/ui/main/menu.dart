@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 
-class MenuPage extends StatelessWidget {
+class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
 
+  @override
+  State<StatefulWidget> createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,11 +35,11 @@ class MenuPage extends StatelessWidget {
     return Center(
       child: Column(
         children: [
-          Flexible(flex: 1, child: MenuTitle()),
+          Flexible(flex: 1, child: menuTitle()),
           Flexible(
             flex: 2,
             child: Center(
-              child: MatchingButton(),
+              child: matchingBtn(),
             ),
           ),
           Flexible(
@@ -43,11 +47,11 @@ class MenuPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Bag(),
+                backpackBtn(),
                 Row(
                   children: [
                     Text("AAA"),
-                    Option(),
+                    settingsBtn(),
                   ],
                 ),
               ],
@@ -57,61 +61,23 @@ class MenuPage extends StatelessWidget {
       ),
     );
   }
-}
 
-class MenuTitle extends StatelessWidget {
-  const MenuTitle({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget menuTitle() {
     return Text(
       "Pluwar",
       style: TextStyle(color: Colors.grey, fontSize: 115),
     );
   }
-}
 
-class MatchingButton extends StatelessWidget {
-  const MatchingButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 280, maxHeight: 80),
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: Colors.brown),
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 80),
-        child: Text(
-          "找人打",
-          style: TextStyle(color: Colors.blue, fontSize: 40),
-        ),
-      ),
+  Widget playerSettingBtn() {
+    return CircleAvatar(
+      //backgroundImage: (),
+      backgroundColor: Colors.blue,
+      radius: 50.0,
     );
   }
-}
 
-class PlayerSetting extends StatelessWidget {
-  const PlayerSetting({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      //alignment: Alignment.topLeft,
-      child: CircleAvatar(
-        //backgroundImage: (),
-        backgroundColor: Colors.blue,
-        radius: 50.0,
-      ),
-    );
-  }
-}
-
-class Bag extends StatelessWidget {
-  const Bag({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget backpackBtn() {
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: 80, maxHeight: 80),
       child: Container(
@@ -123,13 +89,8 @@ class Bag extends StatelessWidget {
       ),
     );
   }
-}
 
-class Option extends StatelessWidget {
-  const Option({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget settingsBtn() {
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: 50, maxHeight: 50),
       child: Container(
@@ -143,6 +104,16 @@ class Option extends StatelessWidget {
           ),
         ),
         padding: EdgeInsets.all(5),
+      ),
+    );
+  }
+
+  Widget matchingBtn() {
+    return ElevatedButton(
+      onPressed: () {},
+      child: Text(
+        "找人打",
+        style: TextStyle(fontSize: 40),
       ),
     );
   }
