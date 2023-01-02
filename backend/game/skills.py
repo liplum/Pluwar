@@ -1,4 +1,4 @@
-from core.entity import *
+from ..core import *
 
 
 class Dash(SkillEffect):
