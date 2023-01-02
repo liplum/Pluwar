@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from typing import Protocol, runtime_checkable
 
+from foundation import PayloadConvertible
+
 
 class ActionType(Enum):
     Damage = auto()
@@ -9,12 +11,9 @@ class ActionType(Enum):
 
 
 @runtime_checkable
-class Action(Protocol):
+class Action(Protocol, PayloadConvertible):
     type: ActionType
     amount: float
-
-    def toPayload(self) -> dict:
-        pass
 
 
 class DamageAction(Action):
