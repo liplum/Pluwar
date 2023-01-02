@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 
 import 'ui/battle/battle_status.dart';
 import 'ui/main/menu.dart';
+import 'ui/battle/battle_menu.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: const AlliedStatus());
+        home: Container(width: 400,height: 400,alignment: Alignment.bottomRight,child: const BattleMenu())
+    );
   }
 }

@@ -21,7 +21,7 @@ class BattleStatusPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: 250, maxWidth: 500),
+      constraints: BoxConstraints(maxHeight: 150, maxWidth: 300),
       child: Container(
         alignment: Alignment.topLeft,
         padding: EdgeInsets.fromLTRB(80, 0, 0, 0),
