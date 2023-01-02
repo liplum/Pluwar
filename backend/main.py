@@ -4,6 +4,7 @@ import os.path
 import aiofiles
 import websockets
 from websockets import WebSocketServerProtocol
+import pluwar
 
 defaultConfig = {
     "ip": "localhost",
@@ -14,7 +15,12 @@ defaultConfig = {
 
 async def handle(websocket: WebSocketServerProtocol):
     async for message in websocket:
-        print(message)
+        try:
+            datapack = json.loads(message)
+        except Exception as e:
+            print(e)
+            continue
+        pluwar.ctx.onJsonMessage(datapack)
 
 
 async def readConfig() -> dict:
@@ -28,7 +34,8 @@ async def readConfig() -> dict:
 
 async def main():
     config = await readConfig()
-    async with websockets.serve(handle, "localhost", 8765):
+    pluwar.ctx.config = config
+    async with websockets.serve(handle, config["ip"], config["port"]):
         await asyncio.Future()  # run forever
 
 
