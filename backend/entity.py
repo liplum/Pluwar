@@ -21,6 +21,7 @@ class Room(PayloadConvertible):
 
     def __init__(self):
         self.state = RoomState.waiting
+        self.battleId = ""
         self.playerA: Player | None = None
         self.playerB: Player | None = None
         self.isPlayerAReady = False
@@ -29,8 +30,9 @@ class Room(PayloadConvertible):
     def toPayload(self) -> dict:
         return {
             "state": self.state.name,
-            "playerA": self.playerA.id,
-            "playerB": self.playerB.id,
+            "battleId": self.battleId,
+            "playerAId": self.playerA.id,
+            "playerBId": self.playerB.id,
             "isPlayerAReady": self.isPlayerAReady,
             "isPlayerBReady": self.isPlayerBReady
         }
