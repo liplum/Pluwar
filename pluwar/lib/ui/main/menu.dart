@@ -113,9 +113,13 @@ class Bag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 100, maxHeight: 100),
+      constraints: BoxConstraints(maxWidth: 80, maxHeight: 80),
       child: Container(
         color: Colors.brown,
+        child: Text(
+          "背包",
+          style: TextStyle(fontSize: 30, color: Colors.black),
+        ),
       ),
     );
   }
