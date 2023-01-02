@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class EnemyStatus extends StatelessWidget{
+class EnemyStatus extends StatelessWidget {
   const EnemyStatus({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -14,42 +13,36 @@ class EnemyStatus extends StatelessWidget{
         width: 400,
         height: 100,
         color: Colors.grey,
-
-        child: BloodBar(),
-        padding: const EdgeInsets.all(20),
-
-
+        child: EnemyHPBar(),
+        padding: const EdgeInsets.all(10),
       ),
     );
   }
 }
 
-
-
-class BloodBar extends StatelessWidget{
-  const BloodBar({super.key});
+class EnemyHPBar extends StatelessWidget {
+  const EnemyHPBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("12345",style: TextStyle(fontSize: 30,color:Colors.black),),
-        Text("12345",style: TextStyle(fontSize: 30,color:Colors.black),),
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: const [
+        Text(
+          "12345",
+          style: TextStyle(
+            fontSize: 15,
+            color: Colors.black,
+          ),
+        ),
+        Center(
+            child: LinearProgressIndicator(
+          value: 0.1,
+          backgroundColor: Colors.black,
+          color: Colors.red,
+          minHeight: 15,
+        ))
       ],
     );
-      Container(
-
-      alignment: Alignment.bottomRight,
-      child: Container(
-        width: 300,
-        height: 30,
-        color: Colors.red,
-
-      ),
-    );
   }
-
 }
-
-

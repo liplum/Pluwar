@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'ui/battle/enemy_status.dart';
+import 'ui/battle/own_status.dart';
+import 'ui/main/menu.dart';
 
 void main() {
- runApp(const MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -82,7 +84,17 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: EnemyStatus(),
+        //child: EnemyStatus(),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            //EnemyStatus(),
+            //OwnStatus(),
+            Menu(),
+
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
