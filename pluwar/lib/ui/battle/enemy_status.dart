@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class EnemyStatus extends StatelessWidget {
@@ -16,8 +15,6 @@ class EnemyStatus extends StatelessWidget {
   }
 }
 
-class EnemyHPBar extends StatelessWidget {
-  const EnemyHPBar({super.key});
 class HealthBar extends StatelessWidget {
   final double currentHealth;
   final double maxHealth;

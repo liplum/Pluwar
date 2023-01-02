@@ -1,25 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
-class Menu extends StatelessWidget {
+class MenuPage extends StatelessWidget {
+  const MenuPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Menu"),
+      ),
+      body: buildMain(),
+    );
+  }
+
+  Widget buildMain() {
+    return Stack(
       children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            PlayerSetting(),
-            Bag(),
-          ],
-        )
+        SizedBox(
+          width: 80,
+          height: 80,
+          child: CircleAvatar(),
+        ),
+        buildBody(),
       ],
+    );
+  }
+
+  Widget buildBody() {
+    return Center(
+      child: Column(
+        children: [
+          Flexible(flex: 1, child: MenuTitle()),
+          Flexible(
+            flex: 2,
+            child: Center(
+              child: MatchingButton(),
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Bag(),
+                Row(
+                  children: [
+                    Text("AAA"),
+                    Option(),
+                  ],
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }
 
 class MenuTitle extends StatelessWidget {
+  const MenuTitle({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Text(
@@ -29,11 +71,13 @@ class MenuTitle extends StatelessWidget {
   }
 }
 
-class MatchingBatton extends StatelessWidget {
+class MatchingButton extends StatelessWidget {
+  const MatchingButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 280),
+      constraints: BoxConstraints(maxWidth: 280, maxHeight: 80),
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(color: Colors.brown),
@@ -48,6 +92,8 @@ class MatchingBatton extends StatelessWidget {
 }
 
 class PlayerSetting extends StatelessWidget {
+  const PlayerSetting({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -62,6 +108,8 @@ class PlayerSetting extends StatelessWidget {
 }
 
 class Bag extends StatelessWidget {
+  const Bag({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
@@ -74,6 +122,8 @@ class Bag extends StatelessWidget {
 }
 
 class Option extends StatelessWidget {
+  const Option({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
