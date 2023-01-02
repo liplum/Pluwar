@@ -46,7 +46,7 @@ class ActorPlayer:
                 return GameAction(self.ctx, self, action)
             totalTime -= waitingTimeSpan
             await asyncio.sleep(waitingTimeSpan)
-        # still no action during waiting time
+        # still no action during waiting time, select at least one for current player
         action = self.ctx.battle.selectTimeoutActionOf(self.player)
         return GameAction(self.ctx, self, action)
 
