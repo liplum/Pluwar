@@ -11,7 +11,7 @@ class PayloadConvertible(Protocol):
 class Channel(Protocol):
     name: str
 
-    async def onMessage(self, json):
+    async def onMessage(self, json: dict):
         pass
 
 
@@ -22,7 +22,7 @@ class ChannelDispatcher:
     def registerChannel(self, channel: Channel):
         self.name2Channel[channel.name] = channel
 
-    async def onMessage(self, json):
+    async def onMessage(self, json: dict):
         channelName = json["channel"]
         if channelName in self.name2Channel:
             channel = self.name2Channel[channelName]
