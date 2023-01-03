@@ -8,11 +8,11 @@ part of 'register.entity.dart';
 
 RegisterPayload _$RegisterPayloadFromJson(Map<String, dynamic> json) =>
     RegisterPayload(
-      $enumDecode(_$RegisterStateEnumMap, json['state']),
+      $enumDecode(_$RegisterStatusEnumMap, json['status']),
     );
 
-const _$RegisterStateEnumMap = {
-  RegisterState.passwordTooWeek: 'passwordTooWeek',
-  RegisterState.done: 'done',
-  RegisterState.accountOccupied: 'accountOccupied',
+const _$RegisterStatusEnumMap = {
+  RegisterStatus.passwordTooWeek: 'passwordTooWeek',
+  RegisterStatus.done: 'done',
+  RegisterStatus.accountOccupied: 'accountOccupied',
 };

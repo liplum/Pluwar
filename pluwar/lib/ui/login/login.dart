@@ -75,8 +75,8 @@ class _LoginPageState extends State<LoginPage> {
     final payload = response.data.toString().fromJson(LoginPayload.fromJson);
     if (payload == null) return;
     if (!mounted) return;
-    switch (payload.state) {
-      case LoginState.incorrectCredential:
+    switch (payload.status) {
+      case LoginStatus.incorrectCredential:
         await context.showTip(
           title: "Error",
           desc: "Account or password is incorrect, please retry.",
@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
         );
         break;
       // TODO: enter the main menu after logging in
-      case LoginState.ok:
+      case LoginStatus.ok:
         await context.showTip(
           title: "Logged in",
           desc: "Welcome.",

@@ -1,4 +1,6 @@
+from datetime import datetime, timedelta
 import json
+import uuid
 
 import transaction
 from aiohttp import web
@@ -6,7 +8,7 @@ import config
 import re
 import stroage
 
-from user import User, UserManager
+from user import User, UserManager, AuthUser
 
 userManager: UserManager
 defaultConfig = {
@@ -20,24 +22,46 @@ async def handle(request: web.Request):
     return web.Response(text="Pluwar")
 
 
+def getExpiredTimestamp(timestamp):
+    return timestamp + timedelta(hours=2)
+
+
 async def handleLogin(request: web.Request):
     payload = await request.json()
     account = payload["account"]
     password = payload["password"]
-    usr = userManager.trtGetUserByAccount(account)
-    if usr is None:
-        reply = {
-            "state": "incorrectCredential"
-        }
-    else:
-        if usr.password == password:
+    authUser = userManager.trtGetAuthUserByAccount(account)
+    if authUser is not None:
+        if authUser.password == password:
+            ts = datetime.utcnow()
+            authUser.timestamp = ts
+            authUser.expired = getExpiredTimestamp(ts)
             reply = {
-                "state": "ok",
-                "token": "111111"
+                "status": "ok",
+                "token": authUser.token,
+                "expired": authUser.expired.isoformat(),
             }
         else:
             reply = {
-                "state": "incorrectCredential"
+                "status": "incorrectCredential"
+            }
+    else:
+        # Not yet auth
+        usr = userManager.trtGetUserByAccount(account)
+        if usr is not None and usr.password == password:
+            token = uuid.uuid4().hex
+            ts = datetime.utcnow()
+            expired = getExpiredTimestamp(ts)
+            authed = AuthUser(usr, token, ts, expired)
+            userManager.authorize(authed)
+            reply = {
+                "status": "ok",
+                "token": token,
+                "expired": expired.isoformat()
+            }
+        else:
+            reply = {
+                "status": "incorrectCredential"
             }
     reply = json.dumps(reply)
     return web.Response(text=reply)
@@ -55,16 +79,16 @@ async def handleRegister(request: web.Request):
     if pwdRegex.match(password):
         if userManager.hasUser(account):
             reply = {
-                "state": "accountOccupied"
+                "status": "accountOccupied"
             }
         else:
             userManager.addUser(User(account, password))
             reply = {
-                "state": "done"
+                "status": "done"
             }
     else:
         reply = {
-            "state": "passwordTooWeek"
+            "status": "passwordTooWeek"
         }
     reply = json.dumps(reply)
     return web.Response(text=reply)

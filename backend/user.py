@@ -12,35 +12,74 @@ class User(persistent.Persistent):
 
 
 class AuthUser(persistent.Persistent):
-    def __init__(self, user: User, timestamp: datetime, expiration: datetime):
+    def __init__(self, user: User, token: str, timestamp: datetime, expired: datetime):
         self.user = user
+        self.token = token
         self.timestamp = timestamp
-        self.expiration = expiration
+        self.expired = expired
         """
         When expired
         """
 
+    @property
+    def account(self) -> str:
+        return self.user.account
+
+    @property
+    def password(self) -> str:
+        return self.user.password
+
 
 class UserManager(persistent.Persistent):
     def __init__(self):
-        self.users = OOBTree()
+        self.account2User = OOBTree()
         """
-        account:str to User(account:str,password:str)
+        account:str to User
         """
-        self.tokens = OOBTree()
+        self.token2Auth = OOBTree()
         """
-        token:str to AuthUser(user:User,timestamp:datetime)
+        token:str to AuthUser
+        """
+        self.account2Auth = OOBTree()
+        """
+        account:str to AuthUser
         """
 
     def trtGetUserByAccount(self, account: str) -> User | None:
-        if account in self.users:
-            return self.users[account]
+        if account in self.account2User:
+            return self.account2User[account]
         else:
             return None
 
+    def trtGetAuthUserByAccount(self, account: str) -> AuthUser | None:
+        if account in self.account2Auth:
+            return self.account2Auth[account]
+        else:
+            return None
+
+    def trtGetAuthUserByToken(self, token: str) -> AuthUser | None:
+        if token in self.token2Auth:
+            return self.token2Auth[token]
+        else:
+            return None
+
+    def authorize(self, user: AuthUser):
+        self.token2Auth[user.token] = user
+        self.account2Auth[user.account] = user
+        transaction.commit()
+
+    def unauthorize(self, user: AuthUser):
+        token = user.token
+        if token in self.token2Auth:
+            self.token2Auth.pop(token)
+        account = user.account
+        if account in self.account2User:
+            self.token2Auth.pop(account)
+        transaction.commit()
+
     def hasUser(self, account: str) -> bool:
-        return account in self.users
+        return account in self.account2User
 
     def addUser(self, usr: User):
-        self.users[usr.account] = usr
+        self.account2User[usr.account] = usr
         transaction.commit()

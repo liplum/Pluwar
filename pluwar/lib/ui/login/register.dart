@@ -107,22 +107,22 @@ class _RegisterPageState extends State<RegisterPage> {
     final payload = response.data.toString().fromJson(RegisterPayload.fromJson);
     if (payload == null) return;
     if (!mounted) return;
-    switch (payload.state) {
-      case RegisterState.accountOccupied:
+    switch (payload.status) {
+      case RegisterStatus.accountOccupied:
         await context.showTip(
           title: "Error",
           desc: "This account already exists, please choose another one.",
           ok: "OK",
         );
         break;
-      case RegisterState.passwordTooWeek:
+      case RegisterStatus.passwordTooWeek:
         await context.showTip(
           title: "Error",
-          desc: "Password is too week, at least 6 characters including at least one digit and one letter.",
+          desc: "The password is too week, at least 6 characters including at least one digit and one letter.",
           ok: "OK",
         );
         break;
-      case RegisterState.done:
+      case RegisterStatus.done:
         await context.showTip(
           title: "Sign up",
           desc: "Your account was signed up, please memorize the password.",

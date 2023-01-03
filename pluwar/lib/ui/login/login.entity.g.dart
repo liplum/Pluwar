@@ -7,15 +7,21 @@ part of 'login.entity.dart';
 // **************************************************************************
 
 LoginPayload _$LoginPayloadFromJson(Map<String, dynamic> json) => LoginPayload(
-      $enumDecode(_$LoginStateEnumMap, json['state']),
+      $enumDecode(_$LoginStatusEnumMap, json['status']),
+      json['token'] as String?,
+      json['expired'] == null
+          ? null
+          : DateTime.parse(json['expired'] as String),
     );
 
 Map<String, dynamic> _$LoginPayloadToJson(LoginPayload instance) =>
     <String, dynamic>{
-      'state': _$LoginStateEnumMap[instance.state]!,
+      'status': _$LoginStatusEnumMap[instance.status]!,
+      'token': instance.token,
+      'expired': instance.expired?.toIso8601String(),
     };
 
-const _$LoginStateEnumMap = {
-  LoginState.incorrectCredential: 'incorrectCredential',
-  LoginState.ok: 'ok',
+const _$LoginStatusEnumMap = {
+  LoginStatus.incorrectCredential: 'incorrectCredential',
+  LoginStatus.ok: 'ok',
 };
