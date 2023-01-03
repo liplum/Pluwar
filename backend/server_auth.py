@@ -43,9 +43,9 @@ async def handleLogin(request: web.Request):
     return web.Response(text=reply)
 
 
-# at least 1 digit, 1 lowercase letter
+# at least 1 digit, 1 letter
 # at least 8 characters
-pwdRegex = re.compile(r"^(?=.*?[a-z])(?=.*?[0-9]).{8,}$")
+pwdRegex = re.compile(r"^(?=.*?[A-Z,a-z])(?=.*?[0-9]).{6,}$")
 
 
 async def handleRegister(request: web.Request):

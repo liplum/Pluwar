@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pluwar/connection.dart';
+import 'package:pluwar/convert.dart';
+import 'package:pluwar/design/dialog.dart';
 import 'package:pluwar/r.dart';
 
 import 'shared.dart';
+import 'register.entity.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -11,10 +14,23 @@ class RegisterPage extends StatefulWidget {
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
+final _pwdRegex = RegExp(r"^(?=.*?[A-Z,a-z])(?=.*?[0-9]).{6,}$");
+
 class _RegisterPageState extends State<RegisterPage> {
   final $account = TextEditingController();
   final $password = TextEditingController();
   final $passwordAgain = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    $password.addListener(() {
+      setState(() {});
+    });
+    $passwordAgain.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,15 +78,58 @@ class _RegisterPageState extends State<RegisterPage> {
   bool get isSignUpEnable {
     final pwd = $password.text;
     final pwd2 = $passwordAgain.text;
-    return pwd.isNotEmpty && pwd2.isNotEmpty && pwd == $passwordAgain.text;
+    return pwd.isNotEmpty && pwd2.isNotEmpty && pwd == pwd2;
   }
 
   Future<void> onRegister() async {
+    final pwd = $password.text;
+    final pwd2 = $passwordAgain.text;
+    if (pwd.isEmpty || pwd2.isEmpty) {
+      await context.showTip(title: "Error", desc: "Password can't be empty.", ok: "OK");
+      return;
+    }
+    if (pwd != pwd2) {
+      await context.showTip(title: "Error", desc: "Passwords do not match, please retype.", ok: "OK");
+      return;
+    }
+    if (!_pwdRegex.hasMatch(pwd)) {
+      await context.showTip(
+        title: "Error",
+        desc: "Password is too week, at least 6 characters including at least one digit and one letter.",
+        ok: "OK",
+      );
+      return;
+    }
     final response = await DIO.post("${R.serverAuthUri}/register", data: {
       "account": $account.text,
       "password": $password.text,
     });
-    print(response);
+    final payload = response.data.toString().fromJson(RegisterPayload.fromJson);
+    if (payload == null) return;
+    if (!mounted) return;
+    switch (payload.state) {
+      case RegisterState.accountOccupied:
+        await context.showTip(
+          title: "Error",
+          desc: "This account already exists, please choose another one.",
+          ok: "OK",
+        );
+        break;
+      case RegisterState.passwordTooWeek:
+        await context.showTip(
+          title: "Error",
+          desc: "Password is too week, at least 6 characters including at least one digit and one letter.",
+          ok: "OK",
+        );
+        break;
+      case RegisterState.done:
+        await context.showTip(
+          title: "Sign up",
+          desc: "Your account was signed up, please memorize the password.",
+          ok: "OK",
+        );
+        break;
+    }
   }
 
   @override
