@@ -8,10 +8,17 @@ defaultConfig = {
 }
 
 
-async def handle(request):
+async def handle(request: web.Request):
     name = request.match_info.get('name', "Anonymous")
     text = "Hello, " + name
     return web.Response(text=text)
+
+
+async def handleLogin(request):
+    pass
+
+async def handleRegister(request):
+    pass
 
 
 def main():
@@ -19,7 +26,7 @@ def main():
     app = web.Application()
     app.add_routes([
         web.get('/', handle),
-        web.get('/{name}', handle),
+        web.post('/login', handleLogin),
     ])
     web.run_app(app, host=conf["ip"], port=conf["port"])
 

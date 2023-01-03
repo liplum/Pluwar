@@ -2,25 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:pluwar/connection.dart';
 import 'package:pluwar/r.dart';
 
-import 'register.dart';
 import 'shared.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final $account = TextEditingController();
   final $password = TextEditingController();
+  final $passwordAgain = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login"),
+        title: Text("Sign up"),
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
@@ -38,35 +38,26 @@ class _LoginPageState extends State<LoginPage> {
             controller: $account,
             label: "Account",
           ),
-          LoginField(
+          PasswordField(
             controller: $password,
             label: "Password",
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              LoginButton(
-                text: "Login",
-                onTap: () async {
-                  await onLogin();
-                },
-              ),
-              LoginButton(
-                text: "Sign up",
-                onTap: () {
-                  Navigator.of(ctx).push(MaterialPageRoute(builder: (_) => const RegisterPage()));
-                },
-              ),
-            ],
+          PasswordField(
+            controller: $passwordAgain,
+            label: "Password Again",
+          ),
+          LoginButton(
+            text: "Sign up",
+            onTap: () async {
+              await onRegister();
+            },
           )
         ],
       ),
     );
   }
 
-  Future<void> onLogin() async {
-    final response = await DIO.post(R.serverLoginUri, data: {});
-    print(response);
+  Future<void> onRegister() async {
   }
 
   @override
