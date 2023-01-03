@@ -6,7 +6,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 void main() async {
   Connection.websocket = WebSocketChannel.connect(
-    Uri.parse(R.serverUri),
+    Uri.parse(R.serverWebsocketUri),
   );
   runApp(const PluwarApp());
 }
