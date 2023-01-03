@@ -45,7 +45,7 @@ dependencies:
   dio: ^4.0.6
   json_annotation: ^4.7.0
   build_runner: ^2.3.3
-  rettulf: ^0.0.8
+  rettulf: ^0.0.9
   loading_animation_widget: ^1.2.0+4
   universal_platform: ^1.0.0+1
 

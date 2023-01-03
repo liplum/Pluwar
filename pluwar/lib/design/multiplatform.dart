@@ -119,7 +119,7 @@ class $Dialog$ extends StatelessWidget {
               onPressed: () {
                 first.onPressed?.call();
               },
-              child: primary.text.text(),
+              child: first.text.text(),
             )
         ],
       );
@@ -146,7 +146,7 @@ class $Dialog$ extends StatelessWidget {
                 onPressed: () {
                   first.onPressed?.call();
                 },
-                child: primary.text.text(
+                child: first.text.text(
                   style: TextStyle(
                     color: first.warning ? context.$red$ : null,
                     fontWeight: first.isDefault ? FontWeight.w600 : null,

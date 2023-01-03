@@ -27,17 +27,17 @@ async def handleLogin(request: web.Request):
     usr = userManager.trtGetUserByAccount(account)
     if usr is None:
         reply = {
-            "state": "accountOrPasswordIncorrect"
+            "state": "incorrectCredential"
         }
     else:
         if usr.password == password:
             reply = {
                 "state": "ok",
-                "snowflake": "111111"
+                "token": "111111"
             }
         else:
             reply = {
-                "state": "accountOrPasswordIncorrect"
+                "state": "incorrectCredential"
             }
     reply = json.dumps(reply)
     return web.Response(text=reply)

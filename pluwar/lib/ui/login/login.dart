@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pluwar/connection.dart';
+import 'package:pluwar/convert.dart';
+import 'package:pluwar/design/dialog.dart';
 import 'package:pluwar/r.dart';
+import 'package:pluwar/ui/login/login.entity.dart';
 
 import 'register.dart';
 import 'shared.dart';
@@ -38,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
             controller: $account,
             label: "Account",
           ),
-          LoginField(
+          PasswordField(
             controller: $password,
             label: "Password",
           ),
@@ -69,7 +72,26 @@ class _LoginPageState extends State<LoginPage> {
       "account": $account.text,
       "password": $password.text,
     });
-    print(response);
+    final payload = response.data.toString().fromJson(LoginPayload.fromJson);
+    if (payload == null) return;
+    if (!mounted) return;
+    switch (payload.state) {
+      case LoginState.incorrectCredential:
+        await context.showTip(
+          title: "Error",
+          desc: "Account or password is incorrect, please retry.",
+          ok: "OK",
+        );
+        break;
+      // TODO: enter the main menu after logging in
+      case LoginState.ok:
+        await context.showTip(
+          title: "Logged in",
+          desc: "Welcome.",
+          ok: "OK",
+        );
+        break;
+    }
   }
 
   @override
