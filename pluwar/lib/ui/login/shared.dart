@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rettulf/rettulf.dart';
 
 class LoginField extends StatelessWidget {
   final TextEditingController controller;
@@ -12,35 +13,16 @@ class LoginField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme
-        .of(context)
-        .textTheme
-        .titleLarge;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Text(
-              label,
-              style: textStyle,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: TextField(
-              controller: controller,
-              style: textStyle,
-            ),
-          )
-        ],
-      ),
+    final textStyle = Theme.of(context).textTheme.titleMedium;
+    return TextField(
+      controller: controller,
+      style: textStyle,
+      decoration: InputDecoration(labelText: label, labelStyle: const TextStyle(fontSize: 25)),
     );
   }
 }
 
-class PasswordField extends StatelessWidget {
+class PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
 
@@ -51,31 +33,30 @@ class PasswordField extends StatelessWidget {
   });
 
   @override
+  State<PasswordField> createState() => _PasswordFieldState();
+}
+
+class _PasswordFieldState extends State<PasswordField> {
+  bool visible = false;
+
+  @override
   Widget build(BuildContext context) {
-    final textStyle = Theme
-        .of(context)
-        .textTheme
-        .titleLarge;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Text(
-              label,
-              style: textStyle,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: TextField(
-              controller: controller,
-              style: textStyle,
-              obscureText: true,
-            ),
-          )
-        ],
+    final textStyle = Theme.of(context).textTheme.titleMedium;
+    return TextField(
+      controller: widget.controller,
+      style: textStyle,
+      obscureText: !visible,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        labelStyle: const TextStyle(fontSize: 25),
+        suffixIcon: IconButton(
+          icon: visible ? const Icon(Icons.visibility_rounded) : const Icon(Icons.visibility_off_rounded),
+          onPressed: () {
+            setState(() {
+              visible = !visible;
+            });
+          },
+        ),
       ),
     );
   }
@@ -94,13 +75,8 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: onTap,
-        child: Text(
-          text,
-          style: Theme
-              .of(context)
-              .textTheme
-              .headlineLarge,
-        ));
+      onPressed: onTap,
+      child: Text(text),
+    );
   }
 }

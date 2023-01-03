@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:rettulf/rettulf.dart';
 
-class MenuPage extends StatefulWidget {
-  const MenuPage({super.key});
+class MainMenuPage extends StatefulWidget {
+  const MainMenuPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _MenuPageState();
+  State<StatefulWidget> createState() => _MainMenuPageState();
 }
 
-class _MenuPageState extends State<MenuPage> {
+class _MainMenuPageState extends State<MainMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Menu"),
+      body: buildMain().safeArea(),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu),
+            label: "Main",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.backpack_outlined),
+            activeIcon: Icon(Icons.backpack),
+            label: "Backpack",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline_rounded),
+            activeIcon: Icon(Icons.person_rounded),
+            label: "Mine",
+          ),
+        ],
       ),
-      body: buildMain(),
     );
   }
 
@@ -35,28 +51,8 @@ class _MenuPageState extends State<MenuPage> {
     return Center(
       child: Column(
         children: [
-          Flexible(flex: 1, child: menuTitle()),
-          Flexible(
-            flex: 2,
-            child: Center(
-              child: matchingBtn(),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                backpackBtn(),
-                Row(
-                  children: [
-                    Text("AAA"),
-                    settingsBtn(),
-                  ],
-                ),
-              ],
-            ),
-          )
+          menuTitle().center().flexible(flex: 1),
+          matchingBtn().center().flexible(flex: 2),
         ],
       ),
     );
@@ -69,50 +65,11 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
-  Widget playerSettingBtn() {
-    return CircleAvatar(
-      //backgroundImage: (),
-      backgroundColor: Colors.blue,
-      radius: 50.0,
-    );
-  }
-
-  Widget backpackBtn() {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 80, maxHeight: 80),
-      child: Container(
-        color: Colors.brown,
-        child: Text(
-          "背包",
-          style: TextStyle(fontSize: 30, color: Colors.black),
-        ),
-      ),
-    );
-  }
-
-  Widget settingsBtn() {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 50, maxHeight: 50),
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: Colors.grey),
-        child: Text(
-          "设",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 30,
-          ),
-        ),
-        padding: EdgeInsets.all(5),
-      ),
-    );
-  }
-
   Widget matchingBtn() {
     return ElevatedButton(
       onPressed: () {},
       child: Text(
-        "找人打",
+        "Match",
         style: TextStyle(fontSize: 40),
       ),
     );

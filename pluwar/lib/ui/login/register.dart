@@ -60,7 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           PasswordField(
             controller: $passwordAgain,
-            label: "Password Again",
+            label: "Confirm Password",
           ),
           LoginButton(
             text: "Sign up",

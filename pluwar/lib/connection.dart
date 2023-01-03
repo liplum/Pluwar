@@ -7,5 +7,6 @@ final Connection = ConnectionImpl();
 final DIO = Dio();
 
 class ConnectionImpl {
+  String? token;
   WebSocketChannel? websocket;
 }

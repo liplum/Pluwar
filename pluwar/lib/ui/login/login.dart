@@ -4,6 +4,8 @@ import 'package:pluwar/convert.dart';
 import 'package:pluwar/design/dialog.dart';
 import 'package:pluwar/r.dart';
 import 'package:pluwar/ui/login/login.entity.dart';
+import 'package:pluwar/ui/main/menu.dart';
+import 'package:rettulf/rettulf.dart';
 
 import 'register.dart';
 import 'shared.dart';
@@ -22,9 +24,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Login"),
-      ),
       body: Padding(
         padding: EdgeInsets.all(10),
         child: buildBody(context),
@@ -33,38 +32,39 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget buildBody(BuildContext ctx) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          LoginField(
-            controller: $account,
-            label: "Account",
-          ),
-          PasswordField(
-            controller: $password,
-            label: "Password",
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              LoginButton(
-                text: "Login",
-                onTap: () async {
-                  await onLogin();
-                },
-              ),
-              LoginButton(
-                text: "Sign up",
-                onTap: () {
-                  Navigator.of(ctx).push(MaterialPageRoute(builder: (_) => const RegisterPage()));
-                },
-              ),
-            ],
-          )
-        ],
-      ),
-    );
+    return [
+      Text(
+        "Pluwar",
+        style: ctx.textTheme.headlineLarge,
+      ).center().expanded(),
+      [
+        LoginField(
+          controller: $account,
+          label: "Account",
+        ),
+        PasswordField(
+          controller: $password,
+          label: "Password",
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            LoginButton(
+              text: "Login",
+              onTap: () async {
+                await onLogin();
+              },
+            ),
+            LoginButton(
+              text: "Sign up",
+              onTap: () {
+                Navigator.of(ctx).push(MaterialPageRoute(builder: (_) => const RegisterPage()));
+              },
+            ),
+          ],
+        )
+      ].column().expanded()
+    ].column();
   }
 
   Future<void> onLogin() async {
@@ -85,11 +85,9 @@ class _LoginPageState extends State<LoginPage> {
         break;
       // TODO: enter the main menu after logging in
       case LoginStatus.ok:
-        await context.showTip(
-          title: "Logged in",
-          desc: "Welcome.",
-          ok: "OK",
-        );
+        Connection.token = payload.token;
+        if (!mounted) return;
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainMenuPage()));
         break;
     }
   }
