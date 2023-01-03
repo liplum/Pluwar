@@ -65,7 +65,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> onLogin() async {
-    final response = await DIO.post(R.serverLoginUri, data: {});
+    final response = await DIO.post("${R.serverAuthUri}/login", data: {
+      "account": $account.text,
+      "password": $password.text,
+    });
     print(response);
   }
 

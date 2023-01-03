@@ -48,16 +48,29 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           LoginButton(
             text: "Sign up",
-            onTap: () async {
-              await onRegister();
-            },
+            onTap: !isSignUpEnable
+                ? null
+                : () async {
+                    await onRegister();
+                  },
           )
         ],
       ),
     );
   }
 
+  bool get isSignUpEnable {
+    final pwd = $password.text;
+    final pwd2 = $passwordAgain.text;
+    return pwd.isNotEmpty && pwd2.isNotEmpty && pwd == $passwordAgain.text;
+  }
+
   Future<void> onRegister() async {
+    final response = await DIO.post("${R.serverAuthUri}/register", data: {
+      "account": $account.text,
+      "password": $password.text,
+    });
+    print(response);
   }
 
   @override

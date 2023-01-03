@@ -9,7 +9,8 @@ import pluwar
 defaultConfig = {
     "ip": "0.0.0.0",
     "port": 8080,
-    "database": "database.fs"
+    "authDatabase": "runtime_data/auth_db.fs",
+    "database": "runtime_data/game_db.fs"
 }
 
 
