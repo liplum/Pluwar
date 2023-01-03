@@ -65,15 +65,17 @@ class AlliedStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 400,
-      height: 400,
-      alignment: Alignment.topLeft,
-      child: BattleStatusPage(
-        hp: 114,
-        maxHp: 514,
-        elfName: "李萝莉",
-        playerName: "土豆奴隶主",
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 300,maxHeight: 200),
+      child: Container(
+
+        alignment: Alignment.topLeft,
+        child: BattleStatusPage(
+          hp: 114,
+          maxHp: 514,
+          elfName: "李萝莉",
+          playerName: "土豆奴隶主",
+        ),
       ),
     );
   }
@@ -84,7 +86,19 @@ class EnemyStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 300,maxHeight: 200),
+      child: Container(
+
+        alignment: Alignment.topLeft,
+        child: BattleStatusPage(
+          hp: 810,
+          maxHp: 1919,
+          elfName: "土人",
+          playerName: "黑恶势力",
+        ),
+      ),
+    );
   }
 }
 
