@@ -1,13 +1,15 @@
-class Theme{
-  final String EnemyHPBarColor;
-  final String EnemyStatusBarColor;
-  final String AlliedHPBarColor;
-  final String AlliedStatusBarColor;
-  final String BattleMenuColor;
+class Theme {
+  final String enemyHPBarColor;
+  final String enemyStatusBarColor;
+  final String alliedHPBarColor;
+  final String alliedStatusBarColor;
+  final String battleMenuColor;
 
-
-
-
-  Theme(this.EnemyHPBarColor, this.EnemyStatusBarColor, this.AlliedHPBarColor, this.AlliedStatusBarColor, this.BattleMenuColor);
-
+  Theme(
+    this.enemyHPBarColor,
+    this.enemyStatusBarColor,
+    this.alliedHPBarColor,
+    this.alliedStatusBarColor,
+    this.battleMenuColor,
+  );
 }
