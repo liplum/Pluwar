@@ -1,7 +1,7 @@
 import asyncio
 import json
 import websockets
-from websockets import WebSocketServerProtocol
+from websockets.legacy.server import WebSocketServerProtocol
 
 import fs
 import pluwar
@@ -21,7 +21,7 @@ async def handle(websocket: WebSocketServerProtocol):
         try:
             datapack = json.loads(message)
             if isinstance(datapack, dict):
-                await pluwar.onJsonMessage(datapack)
+                await pluwar.onJsonMessage(websocket, datapack)
         except Exception as e:
             print(e)
 

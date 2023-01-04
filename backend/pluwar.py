@@ -1,16 +1,16 @@
+from datetime import datetime
 from typing import Any
 
 from foundation import ChannelDispatcher, AuthServiceProtocol
 from user import UserManager, AuthUser
+from websockets.legacy.server import WebSocketServerProtocol
 
 config: dict[str, Any] = {}
 channelDispatcher = ChannelDispatcher()
 
 
-# noinspection PyTypeChecker
-
-async def onJsonMessage(json: dict):
-    await channelDispatcher.onMessage(json)
+async def onJsonMessage(websocket: WebSocketServerProtocol, json: dict):
+    await channelDispatcher.onMessage(websocket, json)
 
 
 def setupAuth(userManager: UserManager):
@@ -18,11 +18,17 @@ def setupAuth(userManager: UserManager):
 
 
 class AuthService(AuthServiceProtocol):
-    def __init__(self, userManager):
+    def __init__(self, userManager: UserManager):
         self.userManager = userManager
 
     async def authorize(self, token: str) -> AuthUser | None:
-        return await super().authorize(token)
+        user = self.userManager.trtGetAuthUserByToken(token)
+        now = datetime.now()
+        if now > user.expired:
+            self.userManager.unauthorize(user)
+            return None
+        else:
+            return user
 
-    async def onUnauthorized(self):
-        return await super().onUnauthorized()
+    async def onUnauthorized(self, websocket: WebSocketServerProtocol, token: str | None):
+        return
