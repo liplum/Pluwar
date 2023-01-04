@@ -6,14 +6,14 @@ class _BackpackPage {
   static const elf = 1;
 }
 
-class BackpackPage extends StatefulWidget {
-  const BackpackPage({super.key});
+class BackpackView extends StatefulWidget {
+  const BackpackView({super.key});
 
   @override
-  State<StatefulWidget> createState() => _BackpackState();
+  State<StatefulWidget> createState() => _BackpackViewState();
 }
 
-class _BackpackState extends State<BackpackPage>
+class _BackpackViewState extends State<BackpackView>
     with SingleTickerProviderStateMixin {
   int currentPage = 0;
   late TabController _tabController;

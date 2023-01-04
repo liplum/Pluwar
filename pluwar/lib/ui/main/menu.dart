@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rettulf/rettulf.dart';
 import 'backpack.dart';
+import 'matching.dart';
+import 'mine.dart';
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
@@ -56,48 +58,11 @@ class _MainMenuPageState extends State<MainMenuPage> {
 
   Widget buildMain() {
     if (currentPage == _Page.match) {
-      return Stack(
-        children: [
-          SizedBox(
-            width: 80,
-            height: 80,
-            child: CircleAvatar(),
-          ),
-          buildBody(),
-        ],
-      );
+      return const MatchingView();
     } else if (currentPage == _Page.backpack) {
-      return BackpackPage();
+      return const BackpackView();
     } else {
-      return "Mine".text(style: TextStyle(fontSize: 40));
+      return const MineView();
     }
-  }
-
-  Widget buildBody() {
-    return Center(
-      child: Column(
-        children: [
-          menuTitle().center().flexible(flex: 1),
-          matchingBtn().center().flexible(flex: 2),
-        ],
-      ),
-    );
-  }
-
-  Widget menuTitle() {
-    return Text(
-      "Pluwar",
-      style: TextStyle(color: Colors.grey, fontSize: 115),
-    );
-  }
-
-  Widget matchingBtn() {
-    return ElevatedButton(
-      onPressed: () {},
-      child: Text(
-        "Match",
-        style: TextStyle(fontSize: 40),
-      ),
-    );
   }
 }
