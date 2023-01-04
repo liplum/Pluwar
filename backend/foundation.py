@@ -1,5 +1,8 @@
 from typing import Protocol, runtime_checkable
 
+from user import AuthUser
+from websockets.legacy.server import WebSocketServerProtocol
+
 
 @runtime_checkable
 class PayloadConvertible(Protocol):
@@ -7,22 +10,17 @@ class PayloadConvertible(Protocol):
         pass
 
 
+class ChannelContext:
+    def __init__(self, websocket: WebSocketServerProtocol, user: AuthUser):
+        self.websocket = websocket
+        self.user = user
+
+
 @runtime_checkable
 class Channel(Protocol):
     name: str
 
-    async def onMessage(self, json: dict):
-        pass
-
-@runtime_checkable
-class DispatcherMiddleware(Protocol):
-    def onPreMessage(self, json: dict) -> bool:
-        """
-        :return: whether to keep the message
-        """
-        pass
-
-    def onPostMessage(self, json: dict):
+    async def onMessage(self, ctx: ChannelContext, json: dict):
         pass
 
 
@@ -35,26 +33,34 @@ messageTemplate = {
 }
 
 
+@runtime_checkable
+class AuthServiceProtocol(Protocol):
+    async def authorize(self, token: str) -> AuthUser | None:
+        pass
+
+    async def onUnauthorized(self, websocket: WebSocketServerProtocol, token: str | None):
+        pass
+
+
 class ChannelDispatcher:
     def __init__(self):
-        self.name2Channel = {}
-        self.middlewares: list[DispatcherMiddleware] = []
+        self.name2Channel: dict[str, Channel] = {}
+        self.authService: AuthServiceProtocol | None = None
 
     def registerChannel(self, channel: Channel):
         self.name2Channel[channel.name] = channel
 
-    def addMiddleware(self, middleware: DispatcherMiddleware):
-        self.middlewares.append(middleware)
-
-    async def onMessage(self, json: dict):
-        for middleware in self.middlewares:
-            kept = middleware.onPreMessage(json)
-            if not kept:
-                return
-        channelName = json["channel"]
-        if channelName in self.name2Channel:
-            channel = self.name2Channel[channelName]
-            data = json["data"]
-            channel.onMessage(data)
-        for middleware in self.middlewares:
-            middleware.onPostMessage(json)
+    async def onMessage(self, websocket: WebSocketServerProtocol, json: dict):
+        if "token" in json:
+            token = json["token"]
+            authUser = await self.authService.authorize(token)
+            if authUser is None:
+                await self.authService.onUnauthorized(websocket, token)
+            else:
+                channelName = json["channel"]
+                if channelName in self.name2Channel:
+                    channel = self.name2Channel[channelName]
+                    data = json["data"]
+                    await channel.onMessage(ChannelContext(websocket, authUser), data)
+        else:
+            await self.authService.onUnauthorized(websocket, token=None)

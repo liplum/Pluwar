@@ -1,12 +1,12 @@
 import asyncio
 import json
 import websockets
-from websockets import WebSocketServerProtocol
+from websockets.legacy.server import WebSocketServerProtocol
 
 import fs
 import pluwar
 import stroage
-from user import UserManager, getUserManagerService
+import user
 
 defaultConfig = {
     "ip": "0.0.0.0",
@@ -21,16 +21,16 @@ async def handle(websocket: WebSocketServerProtocol):
         try:
             datapack = json.loads(message)
             if isinstance(datapack, dict):
-                await pluwar.ctx.onJsonMessage(datapack)
+                await pluwar.onJsonMessage(websocket, datapack)
         except Exception as e:
             print(e)
 
 
 async def serve():
     conf = await fs.readAsync(path="config.data.json", default=defaultConfig)
-    pluwar.ctx.config = conf
+    pluwar.config = conf
     authConnection = stroage.openConnection(conf["authDatabase"])
-    userManager = getUserManagerService(authConnection)
+    pluwar.setupAuth(user.getUserManagerService(authConnection))
     async with websockets.serve(handle, conf["ip"], conf["port"]):
         await asyncio.Future()  # run forever
 
