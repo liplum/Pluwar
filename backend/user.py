@@ -83,3 +83,14 @@ class UserManager(persistent.Persistent):
     def addUser(self, usr: User):
         self.account2User[usr.account] = usr
         transaction.commit()
+
+
+def getUserManagerService(connection):
+    root = connection.root()
+    if "userManager" in root:
+        return root["userManager"]
+    else:
+        userManager = UserManager()
+        root["userManager"] = userManager
+        transaction.commit()
+        return userManager

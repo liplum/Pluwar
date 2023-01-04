@@ -1,3 +1,3 @@
-matching = "matching"
+match = "match"
 chat = "chat"
-
+room = "room"

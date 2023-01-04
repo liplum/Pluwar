@@ -6,6 +6,7 @@ import 'package:pluwar/r.dart';
 import 'package:pluwar/ui/login/login.entity.dart';
 import 'package:pluwar/ui/main/menu.dart';
 import 'package:rettulf/rettulf.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'register.dart';
 import 'shared.dart';
@@ -83,9 +84,9 @@ class _LoginPageState extends State<LoginPage> {
           ok: "OK",
         );
         break;
-      // TODO: enter the main menu after logging in
       case LoginStatus.ok:
         Connection.token = payload.token;
+        Connection.connectToGameServer();
         if (!mounted) return;
         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainMenuPage()));
         break;

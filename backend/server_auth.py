@@ -2,13 +2,12 @@ from datetime import datetime, timedelta
 import json
 import uuid
 
-import transaction
 from aiohttp import web
-import config
+import fs
 import re
 import stroage
 
-from user import User, UserManager, AuthUser
+from user import User, UserManager, AuthUser, getUserManagerService
 
 userManager: UserManager
 defaultConfig = {
@@ -97,16 +96,10 @@ async def handleRegister(request: web.Request):
 
 
 def main():
-    conf = config.readSync(path="config.game.json", default=defaultConfig)
+    conf = fs.readSync(path="config.data.json", default=defaultConfig)
     connection = stroage.openConnection(conf["database"])
-    root = connection.root()
     global userManager
-    if "userManager" in root:
-        userManager = root["userManager"]
-    else:
-        userManager = UserManager()
-        root["userManager"] = userManager
-        transaction.commit()
+    userManager = getUserManagerService(connection)
     app = web.Application()
     app.add_routes([
         web.get('/', handle),

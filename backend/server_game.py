@@ -3,8 +3,10 @@ import json
 import websockets
 from websockets import WebSocketServerProtocol
 
-import config
+import fs
 import pluwar
+import stroage
+from user import UserManager, getUserManagerService
 
 defaultConfig = {
     "ip": "0.0.0.0",
@@ -25,8 +27,10 @@ async def handle(websocket: WebSocketServerProtocol):
 
 
 async def serve():
-    conf = await config.readAsync(path="config.game.json", default=defaultConfig)
+    conf = await fs.readAsync(path="config.data.json", default=defaultConfig)
     pluwar.ctx.config = conf
+    authConnection = stroage.openConnection(conf["authDatabase"])
+    userManager = getUserManagerService(authConnection)
     async with websockets.serve(handle, conf["ip"], conf["port"]):
         await asyncio.Future()  # run forever
 
