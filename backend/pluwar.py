@@ -1,15 +1,28 @@
 from typing import Any
 
-from foundation import ChannelDispatcher
+from foundation import ChannelDispatcher, AuthServiceProtocol
+from user import UserManager, AuthUser
+
+config: dict[str, Any] = {}
+channelDispatcher = ChannelDispatcher()
 
 
-class GlobalContext:
-    def __init__(self):
-        self.config: dict[str, Any] = {}
-        self.channelDispatcher = ChannelDispatcher()
+# noinspection PyTypeChecker
 
-    async def onJsonMessage(self, json: dict):
-        await self.channelDispatcher.onMessage(json)
+async def onJsonMessage(json: dict):
+    await channelDispatcher.onMessage(json)
 
 
-ctx = GlobalContext()
+def setupAuth(userManager: UserManager):
+    channelDispatcher.authService = AuthService(userManager)
+
+
+class AuthService(AuthServiceProtocol):
+    def __init__(self, userManager):
+        self.userManager = userManager
+
+    async def authorize(self, token: str) -> AuthUser | None:
+        return await super().authorize(token)
+
+    async def onUnauthorized(self):
+        return await super().onUnauthorized()

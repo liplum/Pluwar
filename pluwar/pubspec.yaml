@@ -47,7 +47,8 @@ dependencies:
   build_runner: ^2.3.3
   rettulf: ^0.0.9
   loading_animation_widget: ^1.2.0+4
-  universal_platform: ^1.0.0+1
+  path_provider: ^2.0.11
+  path: ^1.8.2
 
 dev_dependencies:
   flutter_test:

@@ -85,7 +85,10 @@ class _LoginPageState extends State<LoginPage> {
         );
         break;
       case LoginStatus.ok:
-        Connection.token = payload.token;
+        final token = payload.token;
+        final expired = payload.expired;
+        if (token == null || expired == null) return;
+        Connection.auth = Auth(token, expired);
         Connection.connectToGameServer();
         if (!mounted) return;
         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainMenuPage()));

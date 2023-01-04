@@ -1,5 +1,7 @@
 from typing import Protocol, runtime_checkable
 
+from user import AuthUser
+
 
 @runtime_checkable
 class PayloadConvertible(Protocol):
@@ -11,18 +13,7 @@ class PayloadConvertible(Protocol):
 class Channel(Protocol):
     name: str
 
-    async def onMessage(self, json: dict):
-        pass
-
-@runtime_checkable
-class DispatcherMiddleware(Protocol):
-    def onPreMessage(self, json: dict) -> bool:
-        """
-        :return: whether to keep the message
-        """
-        pass
-
-    def onPostMessage(self, json: dict):
+    async def onMessage(self, user: AuthUser, json: dict):
         pass
 
 
@@ -35,26 +26,32 @@ messageTemplate = {
 }
 
 
+@runtime_checkable
+class AuthServiceProtocol(Protocol):
+    async def authorize(self, token: str) -> AuthUser | None:
+        pass
+
+    async def onUnauthorized(self):
+        pass
+
+
 class ChannelDispatcher:
     def __init__(self):
-        self.name2Channel = {}
-        self.middlewares: list[DispatcherMiddleware] = []
+        self.name2Channel: dict[str, Channel] = {}
+        self.authService: AuthServiceProtocol | None = None
 
     def registerChannel(self, channel: Channel):
         self.name2Channel[channel.name] = channel
 
-    def addMiddleware(self, middleware: DispatcherMiddleware):
-        self.middlewares.append(middleware)
-
     async def onMessage(self, json: dict):
-        for middleware in self.middlewares:
-            kept = middleware.onPreMessage(json)
-            if not kept:
-                return
-        channelName = json["channel"]
-        if channelName in self.name2Channel:
-            channel = self.name2Channel[channelName]
-            data = json["data"]
-            channel.onMessage(data)
-        for middleware in self.middlewares:
-            middleware.onPostMessage(json)
+        if "token" in json:
+            token = json["token"]
+            authUser = await self.authService.authorize(token)
+            if authUser is not None:
+                channelName = json["channel"]
+                if channelName in self.name2Channel:
+                    channel = self.name2Channel[channelName]
+                    data = json["data"]
+                    await channel.onMessage(authUser, data)
+        else:
+            await self.authService.onUnauthorized()

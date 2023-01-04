@@ -35,11 +35,12 @@ async def handleLogin(request: web.Request):
             ts = datetime.utcnow()
             authUser.timestamp = ts
             authUser.expired = getExpiredTimestamp(ts)
-            print(f"{account} logged in.")
+            expiredIso = authUser.expired.isoformat()
+            print(f"{account} logged in and refresh expiration until {expiredIso}.")
             reply = {
                 "status": "ok",
                 "token": authUser.token,
-                "expired": authUser.expired.isoformat(),
+                "expired": expiredIso,
             }
         else:
             reply = {
@@ -54,10 +55,12 @@ async def handleLogin(request: web.Request):
             expired = getExpiredTimestamp(ts)
             authed = AuthUser(usr, token, ts, expired)
             userManager.authorize(authed)
+            expiredIso = expired.isoformat()
+            print(f"{account} logged in and will be expired after {expiredIso}.")
             reply = {
                 "status": "ok",
                 "token": token,
-                "expired": expired.isoformat()
+                "expired": expiredIso
             }
         else:
             reply = {

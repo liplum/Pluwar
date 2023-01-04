@@ -7,8 +7,15 @@ final Connection = ConnectionImpl();
 // ignore: non_constant_identifier_names
 final DIO = Dio();
 
+class Auth {
+  final String token;
+  final DateTime expired;
+
+  const Auth(this.token, this.expired);
+}
+
 class ConnectionImpl {
-  String? token;
+  Auth? auth;
   WebSocketChannel? websocket;
 
   void connectToGameServer() {
