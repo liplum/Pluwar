@@ -12,8 +12,8 @@ joinRoomRequestTemplate = {
 joinRoomOKReplyTemplate = {
     "roomId": "RoomID",
     "roomStatus": "waiting",
-    "playerAId": "PlayerA",
-    "playerBId": "PlayerB",
+    "playerAAccount": "PlayerA",
+    "playerBAccount": "PlayerB",
     "isPlayerAReady": False,
     "isPlayerBReady": False,
 }
@@ -21,24 +21,38 @@ joinRoomOKReplyTemplate = {
 
 class JoinRoomFailedReason(Enum):
     noSuchRoom = auto()
+    roomIsFull = auto()
 
 
 joinRoomFailedReplyTemplate = {
-    "reason": JoinRoomFailedReason.noSuchRoom,
+    "reason": JoinRoomFailedReason.noSuchRoom
 }
 
 
 async def onJoinRoom(ctx: ChannelContext, json: dict):
+    account = ctx.user.account
     if "roomId" in json:
         # Specify the room ID
         room = roomManager.tryGetRoom(json["roomId"])
         if room is None:
-            await ctx.send({
-                "reason": JoinRoomFailedReason.noSuchRoom
-            }, status=ChannelStatus.failed)
-        account = ctx.user.account
+            room = roomManager.newRoom()
+            room.joinWith(account)
+            await ctx.send(room.toPayload())
+        else:
+            if room.isInRoom(account):
+                return
+            elif room.isFull():
+                await ctx.send({
+                    "reason": JoinRoomFailedReason.roomIsFull
+                }, status=ChannelStatus.failed)
+            else:
+                room.joinWith(account)
+                await ctx.send(room.toPayload())
     else:
-        pass
+        # Randomize a room
+        room = roomManager.newRoom()
+        room.joinWith(account)
+        await ctx.send(room.toPayload())
 
 
 matchQueryRequestTemplate = {

@@ -1,3 +1,4 @@
+import uuid
 from enum import Enum, auto
 from typing import Protocol, runtime_checkable
 
@@ -86,8 +87,8 @@ class ElfEntity:
 
 
 class Player:
-    def __init__(self):
-        self.id = ""
+    def __init__(self, account: str):
+        self.account = account
 
 
 class RoomStatus(Enum):
@@ -101,20 +102,42 @@ class Room(PayloadConvertible):
     Before battle starts, room state is [Waiting] until both players are ready to start.
     """
 
-    def __init__(self):
+    def __init__(self, manager: "RoomManager", roomId: str):
+        self.manager = manager
         self.roomStatus = RoomStatus.waiting
-        self.roomId = ""
+        self.roomId = roomId
         self.playerA: Player | None = None
         self.playerB: Player | None = None
         self.isPlayerAReady = False
         self.isPlayerBReady = False
 
+    def isFull(self) -> bool:
+        return self.playerA is not None and self.playerB is not None
+
+    def isInRoom(self, account: str) -> bool:
+        if self.playerA is not None and self.playerA.account == account:
+            return True
+        if self.playerB is not None and self.playerB.account == account:
+            return True
+        return False
+
+    def joinWith(self, account: str) -> bool:
+        if self.playerA is None:
+            self.playerA = Player(account)
+            self.manager.account2Room[account] = self
+            return True
+        elif self.playerB is None:
+            self.playerB = Player(account)
+            self.manager.account2Room[account] = self
+            return True
+        return False
+
     def toPayload(self) -> dict:
         return {
             "roomStatus": self.roomStatus.name,
             "roomId": self.roomId,
-            "playerAId": self.playerA.id,
-            "playerBId": self.playerB.id,
+            "playerAAccount": self.playerA.account,
+            "playerBAccount": self.playerB.account,
             "isPlayerAReady": self.isPlayerAReady,
             "isPlayerBReady": self.isPlayerBReady
         }
@@ -123,9 +146,16 @@ class Room(PayloadConvertible):
 class RoomManager:
     def __init__(self):
         self.roomID2Room: dict[str, Room] = {}
+        self.account2Room: dict[str, Room] = {}
 
     def tryGetRoom(self, roomId: str) -> Room | None:
         if roomId in self.roomID2Room:
             return self.roomID2Room[roomId]
         else:
             return None
+
+    def newRoom(self) -> Room:
+        roomId = uuid.uuid4().hex
+        room = Room(self, roomId)
+        self.roomID2Room[roomId] = room
+        return room

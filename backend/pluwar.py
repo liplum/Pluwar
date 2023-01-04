@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from typing import Any
 
@@ -38,10 +37,4 @@ class AuthService(AuthServiceProtocol):
             return user
 
     async def onUnauthorized(self, websocket: WebSocketServerProtocol, token: str | None):
-        if token is None:
-            await websocket.close()
-        else:
-            reply = {
-                "status": "unauthorized"
-            }
-            await websocket.send(json.dumps(reply))
+        await websocket.close()
