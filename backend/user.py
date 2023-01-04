@@ -64,8 +64,8 @@ class UserManager(persistent.Persistent):
             return None
 
     def authorize(self, user: AuthUser):
-        self.token2Auth[user.token] = user
         self.account2Auth[user.account] = user
+        self.token2Auth[user.token] = user
         transaction.commit()
 
     def unauthorize(self, user: AuthUser):

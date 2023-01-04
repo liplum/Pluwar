@@ -12,9 +12,12 @@ class ActionType(Enum):
 
 
 @runtime_checkable
-class Action(Protocol, PayloadConvertible):
+class Action(Protocol):
     type: ActionType
     amount: float
+
+    def toPayload(self) -> dict:
+        pass
 
 
 class DamageAction(Action):
@@ -133,14 +136,17 @@ class Room(PayloadConvertible):
         return False
 
     def toPayload(self) -> dict:
-        return {
+        res = {
             "roomStatus": self.roomStatus.name,
             "roomId": self.roomId,
-            "playerAAccount": self.playerA.account,
-            "playerBAccount": self.playerB.account,
-            "isPlayerAReady": self.isPlayerAReady,
-            "isPlayerBReady": self.isPlayerBReady
         }
+        if self.playerA is not None:
+            res["playerAAccount"] = self.playerA.account
+            res["isPlayerAReady"] = self.isPlayerAReady
+        if self.playerB is not None:
+            res["playerBAccount"] = self.playerB.account
+            res["isPlayerBReady"] = self.isPlayerBReady
+        return res
 
 
 class RoomManager:

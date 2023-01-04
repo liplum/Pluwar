@@ -1,11 +1,12 @@
 import asyncio
 import json
+import traceback
+
 import websockets
 from websockets.legacy.server import WebSocketServerProtocol
-
+from websockets.connection import State
 import fs
 import pluwar
-import stroage
 import user
 
 defaultConfig = {
@@ -18,21 +19,25 @@ defaultConfig = {
 
 async def handle(websocket: WebSocketServerProtocol):
     async for message in websocket:
+        if websocket.state == State.OPEN:
+            print(f"Msg from {websocket.id}.")
         try:
             datapack = json.loads(message)
             if isinstance(datapack, dict):
                 await pluwar.onJsonMessage(websocket, datapack)
         except Exception as e:
-            print(e)
+            traceback.print_exception(e)
+    if websocket.state == State.CLOSED:
+        print(f"{websocket.id} is closed.")
 
 
-async def serve():
-    conf = await fs.readAsync(path="config.data.json", default=defaultConfig)
+async def serve(authConnection, conf: dict | None = None):
+    if conf is None:
+        conf = await fs.readAsync(path="config.game.json", default=defaultConfig)
     pluwar.config = conf
-    authConnection = stroage.openConnection(conf["authDatabase"])
     pluwar.setupAuth(user.getUserManagerService(authConnection))
     pluwar.setupGame()
-    async with websockets.serve(handle, conf["ip"], conf["port"]):
+    async with websockets.serve(handle, conf["ip"], conf["port"]) as web:
         await asyncio.Future()  # run forever
 
 
@@ -40,4 +45,5 @@ async def main():
     await serve()
 
 
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pluwar/connection.dart';
+import 'package:pluwar/design/dialog.dart';
 import 'package:rettulf/rettulf.dart';
 
 class MatchingView extends StatefulWidget {
@@ -9,6 +11,15 @@ class MatchingView extends StatefulWidget {
 }
 
 class _MatchingViewState extends State<MatchingView> {
+  @override
+  void initState() {
+    super.initState();
+    Connection.listenToChannel("queryRoom", (msg) async {
+      if (!mounted) return;
+      await context.showTip(title: "onMsg", desc: msg.data.toString(), ok: "OK");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -43,11 +54,17 @@ class _MatchingViewState extends State<MatchingView> {
 
   Widget matchingBtn() {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () async {
+        await onMatch();
+      },
       child: Text(
         "Match",
         style: TextStyle(fontSize: 40),
       ),
     );
+  }
+
+  Future<void> onMatch() async {
+    Connection.sendMessage("joinRoom", {});
   }
 }

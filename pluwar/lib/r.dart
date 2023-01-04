@@ -3,6 +3,7 @@ import 'package:pluwar/platform/platform.dart';
 class R {
   R._();
 
+
   static late final String appDir;
   static late final String tmpDir;
   static const packageName = "net.liplum.pluwar";
@@ -15,5 +16,5 @@ class R {
   static const serverGameWebsocketUri = "ws://192.168.1.2:8080";
 
   /// For testing, it's my home LAN IP
-  static const serverAuthUri = "http://localhost:8081";
+  static const serverAuthUri = "http://192.168.1.2:8081";
 }

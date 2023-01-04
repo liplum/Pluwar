@@ -29,12 +29,15 @@ class AuthService(AuthServiceProtocol):
 
     async def authorize(self, token: str) -> AuthUser | None:
         user = self.userManager.trtGetAuthUserByToken(token)
-        now = datetime.now()
-        if now > user.expired:
-            self.userManager.unauthorize(user)
-            return None
+        if user is not None:
+            now = datetime.utcnow()
+            if now > user.expired:
+                self.userManager.unauthorize(user)
+                return None
+            else:
+                return user
         else:
-            return user
+            return None
 
     async def onUnauthorized(self, websocket: WebSocketServerProtocol, token: str | None):
         await websocket.close()

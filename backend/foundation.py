@@ -36,14 +36,16 @@ replyTemplate = {
 
 
 class ChannelContext:
-    def __init__(self, websocket: WebSocketServerProtocol, user: AuthUser, channelName: str):
+    def __init__(self, websocket: WebSocketServerProtocol, user: AuthUser, channel: str):
         self.websocket = websocket
         self.user = user
-        self.channelName = channelName
+        self.channel = channel
 
-    async def send(self, json: dict, status=ChannelStatus.ok):
+    async def send(self, json: dict, channel: str | None = None, status=ChannelStatus.ok):
+        if channel is None:
+            channel = self.channel
         reply = {
-            "channel": self.channelName,
+            "channel": channel,
             "status": status.name,
             "data": json
         }
@@ -82,6 +84,6 @@ class ChannelDispatcher:
                 if channelName in self.name2Channel:
                     channel = self.name2Channel[channelName]
                     data = json["data"]
-                    await channel(ChannelContext(websocket, authUser), data)
+                    await channel(ChannelContext(websocket, authUser, channelName), data)
         else:
             await self.authService.onUnauthorized(websocket, token=None)

@@ -37,7 +37,7 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
         if room is None:
             room = roomManager.newRoom()
             room.joinWith(account)
-            await ctx.send(room.toPayload())
+            await ctx.send(room.toPayload(), channel="queryRoom")
         else:
             if room.isInRoom(account):
                 return
@@ -47,12 +47,12 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
                 }, status=ChannelStatus.failed)
             else:
                 room.joinWith(account)
-                await ctx.send(room.toPayload())
+                await ctx.send(room.toPayload(), channel="queryRoom")
     else:
         # Randomize a room
         room = roomManager.newRoom()
         room.joinWith(account)
-        await ctx.send(room.toPayload())
+        await ctx.send(room.toPayload(), channel="queryRoom")
 
 
 matchQueryRequestTemplate = {

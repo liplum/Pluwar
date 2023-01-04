@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 import uuid
 
@@ -35,7 +36,7 @@ async def handleLogin(request: web.Request):
             ts = datetime.utcnow()
             authUser.timestamp = ts
             authUser.expired = getExpiredTimestamp(ts)
-            print(f"{account} logged in and refresh expiration until {authUser.expired}.")
+            print(f"\"{account}\" logged in and refresh expiration until {authUser.expired}.")
             reply = {
                 "status": "ok",
                 "token": authUser.token,
@@ -54,7 +55,7 @@ async def handleLogin(request: web.Request):
             expired = getExpiredTimestamp(ts)
             authed = AuthUser(usr, token, ts, expired)
             userManager.authorize(authed)
-            print(f"{account} logged in and will be expired after {expired}.")
+            print(f"\"{account}\" logged in and will be expired after {expired}.")
             reply = {
                 "status": "ok",
                 "token": token,
@@ -96,19 +97,30 @@ async def handleRegister(request: web.Request):
     return web.Response(text=reply)
 
 
-def main():
-    conf = fs.readSync(path="config.data.json", default=defaultConfig)
-    connection = stroage.openConnection(conf["database"])
+async def serve(authConnection=None, conf: dict | None = None):
+    if conf is None:
+        conf = await fs.readAsync(path="config.auth.json", default=defaultConfig)
     global userManager
-    userManager = getUserManagerService(connection)
+    if authConnection is None:
+        authConnection = stroage.openConnection(conf["database"])
+    userManager = getUserManagerService(authConnection)
     app = web.Application()
     app.add_routes([
         web.get('/', handle),
         web.post('/login', handleLogin),
         web.post('/register', handleRegister),
     ])
-    web.run_app(app, host=conf["ip"], port=conf["port"])
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, host=conf["ip"], port=conf["port"])
+    await site.start()
+
+
+async def main():
+    await serve()
+    while True:
+        await asyncio.sleep(3600)
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
