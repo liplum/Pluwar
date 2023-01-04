@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rettulf/rettulf.dart';
+import 'backpack.dart';
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
@@ -66,7 +67,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
         ],
       );
     } else if (currentPage == _Page.backpack) {
-      return "Backup".text(style: TextStyle(fontSize: 40));
+      return BackpackPage();
     } else {
       return "Mine".text(style: TextStyle(fontSize: 40));
     }
