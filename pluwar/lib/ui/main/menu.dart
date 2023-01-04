@@ -8,16 +8,35 @@ class MainMenuPage extends StatefulWidget {
   State<StatefulWidget> createState() => _MainMenuPageState();
 }
 
+class _Page {
+  static const match = 0;
+  static const backpack = 1;
+  static const mine = 2;
+}
+
 class _MainMenuPageState extends State<MainMenuPage> {
+  int currentPage = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: buildMain().safeArea(),
+      body: AnimatedSwitcher(
+        duration: Duration(milliseconds: 200),
+        child: buildMain(),
+      ).safeArea(),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentPage,
+        onTap: (newIndex) {
+          if (currentPage != newIndex) {
+            setState(() {
+              currentPage = newIndex;
+            });
+          }
+        },
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.menu),
-            label: "Main",
+            label: "Match",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.backpack_outlined),
@@ -35,16 +54,22 @@ class _MainMenuPageState extends State<MainMenuPage> {
   }
 
   Widget buildMain() {
-    return Stack(
-      children: [
-        SizedBox(
-          width: 80,
-          height: 80,
-          child: CircleAvatar(),
-        ),
-        buildBody(),
-      ],
-    );
+    if (currentPage == _Page.match) {
+      return Stack(
+        children: [
+          SizedBox(
+            width: 80,
+            height: 80,
+            child: CircleAvatar(),
+          ),
+          buildBody(),
+        ],
+      );
+    } else if (currentPage == _Page.backpack) {
+      return "Backup".text(style: TextStyle(fontSize: 40));
+    } else {
+      return "Mine".text(style: TextStyle(fontSize: 40));
+    }
   }
 
   Widget buildBody() {

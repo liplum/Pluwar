@@ -36,6 +36,7 @@ async def handleLogin(request: web.Request):
             ts = datetime.utcnow()
             authUser.timestamp = ts
             authUser.expired = getExpiredTimestamp(ts)
+            print(f"{account} logged in.")
             reply = {
                 "status": "ok",
                 "token": authUser.token,
@@ -83,6 +84,7 @@ async def handleRegister(request: web.Request):
             }
         else:
             userManager.addUser(User(account, password))
+            print(f"{account} signed up.")
             reply = {
                 "status": "done"
             }
