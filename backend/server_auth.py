@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
-import json
 import uuid
 
 from aiohttp import web
 import fs
 import re
 import stroage
+from encode import jsonEncode
 
 from user import User, UserManager, AuthUser, getUserManagerService
 
@@ -35,12 +35,11 @@ async def handleLogin(request: web.Request):
             ts = datetime.utcnow()
             authUser.timestamp = ts
             authUser.expired = getExpiredTimestamp(ts)
-            expiredIso = authUser.expired.isoformat()
-            print(f"{account} logged in and refresh expiration until {expiredIso}.")
+            print(f"{account} logged in and refresh expiration until {authUser.expired}.")
             reply = {
                 "status": "ok",
                 "token": authUser.token,
-                "expired": expiredIso,
+                "expired": authUser.expired,
             }
         else:
             reply = {
@@ -55,18 +54,17 @@ async def handleLogin(request: web.Request):
             expired = getExpiredTimestamp(ts)
             authed = AuthUser(usr, token, ts, expired)
             userManager.authorize(authed)
-            expiredIso = expired.isoformat()
-            print(f"{account} logged in and will be expired after {expiredIso}.")
+            print(f"{account} logged in and will be expired after {expired}.")
             reply = {
                 "status": "ok",
                 "token": token,
-                "expired": expiredIso
+                "expired": expired
             }
         else:
             reply = {
                 "status": "incorrectCredential"
             }
-    reply = json.dumps(reply)
+    reply = jsonEncode(reply)
     return web.Response(text=reply)
 
 
@@ -94,7 +92,7 @@ async def handleRegister(request: web.Request):
         reply = {
             "status": "passwordTooWeek"
         }
-    reply = json.dumps(reply)
+    reply = jsonEncode(reply)
     return web.Response(text=reply)
 
 

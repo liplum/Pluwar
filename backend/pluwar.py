@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import Any
 
@@ -17,6 +18,12 @@ def setupAuth(userManager: UserManager):
     channelDispatcher.authService = AuthService(userManager)
 
 
+def setupGame():
+    import game
+    channelDispatcher.registerChannel("joinRoom", game.onJoinRoom)
+    channelDispatcher.registerChannel("queryRoom", game.onQueryRoom)
+
+
 class AuthService(AuthServiceProtocol):
     def __init__(self, userManager: UserManager):
         self.userManager = userManager
@@ -31,4 +38,10 @@ class AuthService(AuthServiceProtocol):
             return user
 
     async def onUnauthorized(self, websocket: WebSocketServerProtocol, token: str | None):
-        return
+        if token is None:
+            await websocket.close()
+        else:
+            reply = {
+                "status": "unauthorized"
+            }
+            await websocket.send(json.dumps(reply))

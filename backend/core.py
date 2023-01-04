@@ -90,7 +90,7 @@ class Player:
         self.id = ""
 
 
-class RoomState(Enum):
+class RoomStatus(Enum):
     waiting = auto()
     battle = auto()
     end = auto()
@@ -102,8 +102,8 @@ class Room(PayloadConvertible):
     """
 
     def __init__(self):
-        self.state = RoomState.waiting
-        self.battleId = ""
+        self.roomStatus = RoomStatus.waiting
+        self.roomId = ""
         self.playerA: Player | None = None
         self.playerB: Player | None = None
         self.isPlayerAReady = False
@@ -111,10 +111,21 @@ class Room(PayloadConvertible):
 
     def toPayload(self) -> dict:
         return {
-            "state": self.state.name,
-            "battleId": self.battleId,
+            "roomStatus": self.roomStatus.name,
+            "roomId": self.roomId,
             "playerAId": self.playerA.id,
             "playerBId": self.playerB.id,
             "isPlayerAReady": self.isPlayerAReady,
             "isPlayerBReady": self.isPlayerBReady
         }
+
+
+class RoomManager:
+    def __init__(self):
+        self.roomID2Room: dict[str, Room] = {}
+
+    def tryGetRoom(self, roomId: str) -> Room | None:
+        if roomId in self.roomID2Room:
+            return self.roomID2Room[roomId]
+        else:
+            return None

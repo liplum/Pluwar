@@ -31,6 +31,7 @@ async def serve():
     pluwar.config = conf
     authConnection = stroage.openConnection(conf["authDatabase"])
     pluwar.setupAuth(user.getUserManagerService(authConnection))
+    pluwar.setupGame()
     async with websockets.serve(handle, conf["ip"], conf["port"]):
         await asyncio.Future()  # run forever
 
