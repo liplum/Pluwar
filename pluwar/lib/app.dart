@@ -5,7 +5,7 @@ import 'package:pluwar/ui/battle/battle_status.dart';
 import 'package:pluwar/ui/login/login.dart';
 import 'ui/main/menu.dart';
 import 'ui/main/backpack.dart';
-
+import 'ui/battle/exit.dart';
 
 class PluwarApp extends StatelessWidget {
   const PluwarApp({super.key});
@@ -19,8 +19,8 @@ class PluwarApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home:LoginPage());
-
+        home:Exit());
+        //LoginPage()
             /*
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
