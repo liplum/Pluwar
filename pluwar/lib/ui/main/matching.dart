@@ -184,8 +184,12 @@ class _RoomViewState extends State<RoomView> {
         title: room.roomId.text(),
       ),
       body: [
-        buildPlayerEntryArea().flexible(flex: 2),
-        const RoomChatArea().padAll(10).flexible(flex: 3),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.fastLinearToSlowEaseIn,
+          child: buildPlayerEntryArea(),
+        ),
+        const RoomChatArea().padAll(10).expanded(),
       ].column(),
     );
   }
@@ -229,9 +233,13 @@ class _RoomViewState extends State<RoomView> {
     } else {
       trailing = null;
     }
+    final leading = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      child: entry.isReady ? const Icon(Icons.check_rounded, color: Colors.green) : const Icon(Icons.pending_outlined),
+    );
     return ListTile(
       title: entry.account.text(style: context.textTheme.titleLarge),
-      leading: entry.isReady ? const Icon(Icons.check_rounded, color: Colors.green) : const Icon(Icons.circle_outlined),
+      leading: leading,
       trailing: trailing,
     );
   }
@@ -334,13 +342,23 @@ class _RoomChatAreaState extends State<RoomChatArea> {
   }
 
   Widget buildEntry(RoomChatEntry entry) {
-    return [
-      [
-        entry.sender.text(style: context.textTheme.bodySmall),
-        entry.ts.toLocal().toString().text(style: context.textTheme.bodySmall),
-      ].row(maa: MainAxisAlignment.spaceBetween),
-      entry.content.text(),
-    ].column(caa: CrossAxisAlignment.start);
+    if (entry.sender == Connection.auth?.account) {
+      return [
+        [
+          entry.ts.toLocal().toString().text(style: context.textTheme.bodySmall),
+          entry.sender.text(style: context.textTheme.bodySmall),
+        ].row(maa: MainAxisAlignment.spaceBetween, caa: CrossAxisAlignment.end),
+        entry.content.text(),
+      ].column(caa: CrossAxisAlignment.end);
+    } else {
+      return [
+        [
+          entry.sender.text(style: context.textTheme.bodySmall),
+          entry.ts.toLocal().toString().text(style: context.textTheme.bodySmall),
+        ].row(maa: MainAxisAlignment.spaceBetween),
+        entry.content.text(),
+      ].column(caa: CrossAxisAlignment.start);
+    }
   }
 
   Future<void> onSendChat() async {
