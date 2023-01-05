@@ -86,7 +86,7 @@ async def handleRegister(request: web.Request):
             }
         else:
             userManager.addUser(User(account, password))
-            print(f"{account} signed up.")
+            print(f"\"{account}\" signed up.")
             reply = {
                 "status": "done"
             }

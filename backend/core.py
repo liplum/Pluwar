@@ -1,4 +1,3 @@
-import uuid
 from enum import Enum, auto
 from typing import Protocol, runtime_checkable
 
@@ -143,6 +142,22 @@ class Room(PayloadConvertible):
                 return entry
         return None
 
+    def leaveRoom(self, account: str) -> bool:
+        index = -1
+        for i, entry in enumerate(self.players):
+            if entry.account == account:
+                index = i
+        if 0 <= index < len(self.players):
+            self.players.pop(index)
+            if account in self.manager.account2Room:
+                self.manager.account2Room.pop(account)
+            if len(self.players) == 0:
+                if self.roomId in self.manager.roomID2Room:
+                    self.manager.roomID2Room.pop(self.roomId)
+            return True
+        else:
+            return False
+
     def joinWith(self, account: str) -> bool:
         if not self.isInRoom(account):
             player = Player(account)
@@ -166,6 +181,7 @@ class RoomManager:
     def __init__(self):
         self.roomID2Room: dict[str, Room] = {}
         self.account2Room: dict[str, Room] = {}
+        self.curRoomIdPtr = 10000
 
     def tryGetRoomById(self, roomId: str) -> Room | None:
         if roomId in self.roomID2Room:
@@ -180,7 +196,8 @@ class RoomManager:
             return None
 
     def newRoom(self) -> Room:
-        roomId = uuid.uuid4().hex
+        self.curRoomIdPtr += 1
+        roomId = str(self.curRoomIdPtr)
         room = Room(self, roomId)
         self.roomID2Room[roomId] = room
         return room

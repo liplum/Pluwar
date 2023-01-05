@@ -25,11 +25,19 @@ class _PluwarAppState extends State<PluwarApp> {
     debugPaintSizeEnabled = false;
     return MaterialApp(
       title: 'Pluwar',
+      debugShowCheckedModeBanner: false,
       navigatorKey: AppKey,
       theme: ThemeData(
+        useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: const LoginPage(),
+      home: Navigator(
+        onGenerateRoute: _onGenerateRoute,
+      ),
     );
+  }
+
+  Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
+    return MaterialPageRoute(builder: (_) => const LoginPage());
   }
 }

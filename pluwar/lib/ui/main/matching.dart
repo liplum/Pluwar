@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pluwar/connection.dart';
 import 'package:pluwar/ui/main/matching.entity.dart';
@@ -21,6 +22,13 @@ class _MatchingViewState extends State<MatchingView> {
       final payload = QueryRoomPayload.fromJson(msg.data);
       setState(() {
         _room = payload;
+      });
+    });
+
+    Connection.listenToChannel("leaveRoom", (msg) {
+      if (!mounted) return;
+      setState(() {
+        _room = null;
       });
     });
   }
@@ -104,6 +112,9 @@ class _RoomViewState extends State<RoomView> {
         physics: const RangeMaintainingScrollPhysics(),
         slivers: [
           SliverAppBar(
+            actions: [
+              buildLeaveRoom(),
+            ],
             title: room.roomId.text(),
           ),
           buildPlayerEntryArea(),
@@ -112,10 +123,19 @@ class _RoomViewState extends State<RoomView> {
     );
   }
 
+  Widget buildLeaveRoom() {
+    return CupertinoButton(
+      onPressed: () async {
+        await onLeaveRoom();
+      },
+      child: "Leave".text(),
+    );
+  }
+
   Widget buildFAB() {
     if (isSelfReady) {
       return FloatingActionButton.extended(
-        onPressed: () async{
+        onPressed: () async {
           await onChangeReadyStatus(ReadyStatus.unready);
         },
         label: "Cancel".text(),
@@ -145,13 +165,16 @@ class _RoomViewState extends State<RoomView> {
     );
   }
 
+  Future<void> onLeaveRoom() async {
+    Connection.sendMessage("leaveRoom", {
+      "roomId": room.roomId,
+    });
+  }
+
   Future<void> onChangeReadyStatus(ReadyStatus status) async {
-    final account = Connection.auth?.account;
-    if (account != null) {
-      Connection.sendMessage("changeRoomPlayerStatus", {
-        "roomId": room.roomId,
-        "status": status.name,
-      });
-    }
+    Connection.sendMessage("changeRoomPlayerStatus", {
+      "roomId": room.roomId,
+      "status": status.name,
+    });
   }
 }
