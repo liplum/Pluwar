@@ -1,7 +1,23 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pluwar/entity/player.dart';
 
 part 'matching.entity.g.dart';
+
+@JsonEnum()
+enum RoomFailedReason {
+  noSuchRoom,
+  roomIsFull,
+  alreadyInRoom,
+  noPermission;
+}
+
+@JsonSerializable()
+class RoomFailedPayload {
+  final RoomFailedReason reason;
+
+  const RoomFailedPayload(this.reason);
+
+  factory RoomFailedPayload.fromJson(Map<String, dynamic> json) => _$RoomFailedPayloadFromJson(json);
+}
 
 @JsonSerializable()
 class PlayerEntry {
@@ -34,4 +50,14 @@ class QueryRoomPayload {
   const QueryRoomPayload(this.roomId, this.status, this.players);
 
   factory QueryRoomPayload.fromJson(Map<String, dynamic> json) => _$QueryRoomPayloadFromJson(json);
+}
+
+@JsonSerializable()
+class CheckMyRoomPayload {
+  @JsonKey()
+  final String? roomId;
+
+  const CheckMyRoomPayload(this.roomId);
+
+  factory CheckMyRoomPayload.fromJson(Map<String, dynamic> json) => _$CheckMyRoomPayloadFromJson(json);
 }

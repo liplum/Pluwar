@@ -21,9 +21,11 @@ def setupAuth(userManager: UserManager):
 def setupGame():
     import game
     channelDispatcher.registerChannel("joinRoom", game.onJoinRoom)
+    channelDispatcher.registerChannel("createRoom", game.onCreateRoom)
+    channelDispatcher.registerChannel("checkMyRoom", game.onCheckMyRoom)
     channelDispatcher.registerChannel("queryRoom", game.onQueryRoom)
-    channelDispatcher.registerChannel("changeRoomPlayerStatus", game.changeRoomPlayerStatus)
-    channelDispatcher.registerChannel("leaveRoom", game.leaveRoomPlayerStatus)
+    channelDispatcher.registerChannel("changeRoomPlayerStatus", game.onChangeRoomPlayerStatus)
+    channelDispatcher.registerChannel("leaveRoom", game.onLeaveRoomPlayerStatus)
 
 
 class AuthService(AuthServiceProtocol):

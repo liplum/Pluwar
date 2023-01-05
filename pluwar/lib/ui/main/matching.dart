@@ -19,7 +19,16 @@ class _MatchingViewState extends State<MatchingView> {
   @override
   void initState() {
     super.initState();
-    Connection.listenToChannel("queryRoom", (msg) async {
+    Connection.listenToChannel("checkMyRoom", (msg) {
+      final payload = CheckMyRoomPayload.fromJson(msg.data);
+      final roomId = payload.roomId;
+      if (roomId != null) {
+        Connection.sendMessage("queryRoom", {
+          "roomId": roomId,
+        });
+      }
+    });
+    Connection.listenToChannels(["joinRoom", "queryRoom"], (msg) async {
       if (!mounted) return;
       final payload = QueryRoomPayload.fromJson(msg.data);
       setState(() {
@@ -33,6 +42,7 @@ class _MatchingViewState extends State<MatchingView> {
         _room = null;
       });
     });
+    Connection.sendMessage("checkMyRoom");
   }
 
   @override
@@ -52,6 +62,7 @@ class _MatchingViewState extends State<MatchingView> {
           menuTitle().center().flexible(flex: 1),
           [
             matchingBtn(),
+            //createRoomBtn(),
             joinRoomBtn(),
           ].column(maa: MainAxisAlignment.spaceEvenly).center().flexible(flex: 2),
         ],
@@ -73,6 +84,16 @@ class _MatchingViewState extends State<MatchingView> {
       },
       child: Text(
         "Match",
+        style: TextStyle(fontSize: 40),
+      ),
+    );
+  }
+
+  Widget createRoomBtn() {
+    return ElevatedButton(
+      onPressed: () async {},
+      child: Text(
+        "Create",
         style: TextStyle(fontSize: 40),
       ),
     );

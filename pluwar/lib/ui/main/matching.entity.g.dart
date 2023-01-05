@@ -6,6 +6,23 @@ part of 'matching.entity.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+RoomFailedPayload _$RoomFailedPayloadFromJson(Map<String, dynamic> json) =>
+    RoomFailedPayload(
+      $enumDecode(_$RoomFailedReasonEnumMap, json['reason']),
+    );
+
+Map<String, dynamic> _$RoomFailedPayloadToJson(RoomFailedPayload instance) =>
+    <String, dynamic>{
+      'reason': _$RoomFailedReasonEnumMap[instance.reason]!,
+    };
+
+const _$RoomFailedReasonEnumMap = {
+  RoomFailedReason.noSuchRoom: 'noSuchRoom',
+  RoomFailedReason.roomIsFull: 'roomIsFull',
+  RoomFailedReason.alreadyInRoom: 'alreadyInRoom',
+  RoomFailedReason.noPermission: 'noPermission',
+};
+
 PlayerEntry _$PlayerEntryFromJson(Map<String, dynamic> json) => PlayerEntry(
       json['account'] as String,
       json['isReady'] as bool,
@@ -38,3 +55,13 @@ const _$RoomStatusEnumMap = {
   RoomStatus.battle: 'battle',
   RoomStatus.end: 'end',
 };
+
+CheckMyRoomPayload _$CheckMyRoomPayloadFromJson(Map<String, dynamic> json) =>
+    CheckMyRoomPayload(
+      json['roomId'] as String?,
+    );
+
+Map<String, dynamic> _$CheckMyRoomPayloadToJson(CheckMyRoomPayload instance) =>
+    <String, dynamic>{
+      'roomId': instance.roomId,
+    };

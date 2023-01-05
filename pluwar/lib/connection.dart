@@ -111,6 +111,14 @@ class ConnectionImpl {
     });
   }
 
+  void listenToChannels(List<String> channels, void Function(ChannelMessageFromServer msg) onMsg) {
+    eventBus.on<ChannelMessageFromServerEvent>().listen((event) {
+      if (channels.contains(event.channel)) {
+        onMsg(event.msg);
+      }
+    });
+  }
+
   WebSocketChannel keepWebsocket() {
     if (_websocket == null) {
       final newWebsocket = _connectToGameServer();

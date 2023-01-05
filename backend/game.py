@@ -22,55 +22,102 @@ queryRoomReplyTemplate = {
 }
 
 
-class JoinRoomFailedReason(Enum):
+class RoomFailedReason(Enum):
     noSuchRoom = auto()
     roomIsFull = auto()
+    alreadyInRoom = auto()
+    noPermission = auto()
 
 
 joinRoomFailedReplyTemplate = {
-    "reason": JoinRoomFailedReason.noSuchRoom
+    "reason": RoomFailedReason.noSuchRoom
 }
 
 
 # TODO: Broadcast to all players in the same room.
 async def onJoinRoom(ctx: ChannelContext, json: dict):
     account = ctx.user.account
-    if "roomId" in json:
-        # Specify the room ID
-        room = roomManager.tryGetRoomById(json["roomId"])
-        if room is None:
-            room = roomManager.newRoom()
-            room.joinWith(account)
-            await ctx.send(room.toPayload(), channel="queryRoom")
-        else:
-            if room.isInRoom(account):
-                return
-            elif room.isFull():
+    room = roomManager.tryGetRoomByAccount(account)
+    if room is not None:
+        # Already joined room
+        await ctx.send({
+            "reason": RoomFailedReason.alreadyInRoom
+        }, status=ChannelStatus.failed)
+    else:
+        # Not yet joined room
+        if "roomId" in json:
+            # Specify the room ID
+            room = roomManager.tryGetRoomById(json["roomId"])
+            if room is None:
+                # No such room
                 await ctx.send({
-                    "reason": JoinRoomFailedReason.roomIsFull
+                    "reason": RoomFailedReason.noSuchRoom
                 }, status=ChannelStatus.failed)
             else:
-                room.joinWith(account)
-                await ctx.send(room.toPayload(), channel="queryRoom")
-    else:
-        # Check if they have joined a room
-        room = roomManager.tryGetRoomByAccount(account)
-        if room is not None:
-            await ctx.send(room.toPayload(), channel="queryRoom")
+                if room.isInRoom(account):
+                    # If already in room, reply the state
+                    await ctx.send(room.toPayload())
+                elif room.isFull():
+                    # Player cannot join a full room
+                    await ctx.send({
+                        "reason": RoomFailedReason.roomIsFull
+                    }, status=ChannelStatus.failed)
+                else:
+                    # Join the room
+                    room.joinWith(account)
+                    await ctx.send(room.toPayload())
         else:
             # Create a room
             room = roomManager.newRoom()
             room.joinWith(account)
-            await ctx.send(room.toPayload(), channel="queryRoom")
+            await ctx.send(room.toPayload())
 
 
-matchQueryRequestTemplate = {
+createRoomRequestTemplate = {
     "roomId": "RoomID"
 }
 
 
+async def onCreateRoom(ctx: ChannelContext, json: dict):
+    print("NoImpl [onCreateRoom]")
+
+
+queryRoomRequestTemplate = {
+    "roomId": "Room ID"
+}
+
+
 async def onQueryRoom(ctx: ChannelContext, json: dict):
-    pass
+    if "roomId" in json:
+        roomId = json["roomId"]
+        room = roomManager.tryGetRoomById(roomId)
+        if room is None:
+            await ctx.send({
+                "reason": RoomFailedReason.noSuchRoom
+            }, status=ChannelStatus.failed)
+        else:
+            if room.isInRoom(ctx.user.account):
+                await ctx.send(room.toPayload())
+            else:
+                await ctx.send({
+                    "reason": RoomFailedReason.noPermission
+                }, status=ChannelStatus.failed)
+
+
+checkMyRoomReplyTemplate = {
+    "roomId": "Optional[Room ID]"
+}
+
+
+async def onCheckMyRoom(ctx: ChannelContext, json: dict):
+    account = ctx.user.account
+    room = roomManager.tryGetRoomByAccount(account)
+    if room is None:
+        await ctx.send({})
+    else:
+        await ctx.send({
+            "roomId": room.roomId
+        })
 
 
 changeRoomPlayerStatusRequestTemplate = {
@@ -85,7 +132,7 @@ def _parseChangRoomPlayerStatus(json: dict):
     return False
 
 
-async def changeRoomPlayerStatus(ctx: ChannelContext, json: dict):
+async def onChangeRoomPlayerStatus(ctx: ChannelContext, json: dict):
     if "roomId" in json:
         roomId = json["roomId"]
         room = roomManager.tryGetRoomById(roomId)
@@ -95,9 +142,9 @@ async def changeRoomPlayerStatus(ctx: ChannelContext, json: dict):
                 player.isReady = _parseChangRoomPlayerStatus(json)
                 await ctx.send(room.toPayload(), channel="queryRoom")
             else:
-                await ctx.send({}, status=ChannelStatus.failed)
-        else:
-            await ctx.send({}, status=ChannelStatus.failed)
+                await ctx.send({
+                    "reason": RoomFailedReason.noSuchRoom
+                }, status=ChannelStatus.failed)
 
 
 leaveRoomPlayerStatusRequestTemplate = {
@@ -108,7 +155,7 @@ leaveRoomPlayerStatusReplyTemplate = {
 }
 
 
-async def leaveRoomPlayerStatus(ctx: ChannelContext, json: dict):
+async def onLeaveRoomPlayerStatus(ctx: ChannelContext, json: dict):
     if "roomId" in json:
         roomId = json["roomId"]
         room = roomManager.tryGetRoomById(roomId)
@@ -118,6 +165,6 @@ async def leaveRoomPlayerStatus(ctx: ChannelContext, json: dict):
                 room.leaveRoom(account)
                 await ctx.send({}, channel="leaveRoom")
             else:
-                await ctx.send({}, status=ChannelStatus.failed)
-        else:
-            await ctx.send({}, status=ChannelStatus.failed)
+                await ctx.send({
+                    "reason": RoomFailedReason.noSuchRoom
+                }, status=ChannelStatus.failed)
