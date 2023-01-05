@@ -15,10 +15,15 @@ final Connection = ConnectionImpl();
 final DIO = Dio();
 
 class Auth {
+  final String account;
   final String token;
   final DateTime expired;
 
-  const Auth(this.token, this.expired);
+  const Auth({
+    required this.account,
+    required this.token,
+    required this.expired,
+  });
 }
 
 @JsonEnum()
@@ -65,13 +70,16 @@ class ChannelMessageFromServerEvent {
 class ConnectionImpl {
   final eventBus = EventBus();
   Auth? auth;
-  WebSocketChannel? websocket;
+  WebSocketChannel? _websocket;
 
   void connectToGameServer() {
+    _websocket = _connectToGameServer();
+  }
+
+  WebSocketChannel _connectToGameServer() {
     final connection = WebSocketChannel.connect(
       Uri.parse(R.serverGameWebsocketUri),
     );
-    websocket = connection;
     connection.stream.listen((data) {
       if (data is String) {
         final payload = data.fromJson(ChannelMessageFromServer.fromJson);
@@ -80,7 +88,10 @@ class ConnectionImpl {
           eventBus.fire(ChannelMessageFromServerEvent(channel, payload));
         }
       }
+    }, onDone: () {
+      _websocket = null;
     });
+    return connection;
   }
 
   void listenToChannel(String channel, void Function(ChannelMessageFromServer msg) onMsg) {
@@ -91,13 +102,21 @@ class ConnectionImpl {
     });
   }
 
-  void sendMessage(String channel, Map<String, dynamic> payload) {
-    final connection = websocket;
-    if (connection != null) {
-      final msg = ChannelMessageToServer(channel, auth!.token, payload);
-      final msgPayload = msg.toJson();
-      final msgPayloadJson = jsonEncode(msgPayload);
-      connection.sink.add(msgPayloadJson);
+  WebSocketChannel keepWebsocket() {
+    if (_websocket == null) {
+      final newWebsocket = _connectToGameServer();
+      _websocket = newWebsocket;
+      return newWebsocket;
+    } else {
+      return _websocket!;
     }
+  }
+
+  void sendMessage(String channel, [Map<String, dynamic> payload = const {}]) {
+    final connection = keepWebsocket();
+    final msg = ChannelMessageToServer(channel, auth!.token, payload);
+    final msgPayload = msg.toJson();
+    final msgPayloadJson = jsonEncode(msgPayload);
+    connection.sink.add(msgPayloadJson);
   }
 }

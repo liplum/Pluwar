@@ -13,8 +13,8 @@ class R {
   static String get hiveDir => joinPath(localStorageDir, "hive");
 
   /// For testing, it's my home LAN IP
-  static const serverGameWebsocketUri = "ws://192.168.1.2:8080";
+  static const serverGameWebsocketUri = "ws://192.168.1.4:8080";
 
   /// For testing, it's my home LAN IP
-  static const serverAuthUri = "http://192.168.1.2:8081";
+  static const serverAuthUri = "http://192.168.1.4:8081";
 }
