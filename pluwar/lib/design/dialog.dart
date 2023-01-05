@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:rettulf/rettulf.dart';
 
 import 'multiplatform.dart';
@@ -99,33 +98,5 @@ extension DialogEx on BuildContext {
         ),
       ),
     );
-  }
-
-  Future<void> showWaiting({
-    required Future<void> until,
-    required String title,
-    bool serious = false,
-  }) async {
-    bool isWaiting = true;
-    show$Dialog$(
-      dismissible: false,
-      make: (ctx) => WillPopScope(
-        onWillPop: () async {
-          return !isWaiting;
-        },
-        child: $Dialog$(
-          title: title,
-          serious: serious,
-          make: (_) => LoadingAnimationWidget.beat(
-            color: theme.primaryColor,
-            size: 64,
-          ).padAll(24),
-        ),
-      ),
-    );
-    await until;
-    isWaiting = false;
-    navigator.pop();
-    return;
   }
 }

@@ -67,6 +67,8 @@ class ChannelMessageFromServerEvent {
   const ChannelMessageFromServerEvent(this.channel, this.msg);
 }
 
+class UnauthorizedEvent {}
+
 class ConnectionImpl {
   final eventBus = EventBus();
   Auth? auth;
@@ -85,11 +87,18 @@ class ConnectionImpl {
         final payload = data.fromJson(ChannelMessageFromServer.fromJson);
         if (payload != null) {
           final channel = payload.channel;
-          eventBus.fire(ChannelMessageFromServerEvent(channel, payload));
+          if (channel == "authorization") {
+            if (payload.status == ChannelStatus.failed) {
+              eventBus.fire(UnauthorizedEvent());
+            }
+          } else {
+            eventBus.fire(ChannelMessageFromServerEvent(channel, payload));
+          }
         }
       }
     }, onDone: () {
       _websocket = null;
+      eventBus.fire(UnauthorizedEvent());
     });
     return connection;
   }

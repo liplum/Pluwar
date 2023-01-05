@@ -36,6 +36,7 @@ async def handleLogin(request: web.Request):
             ts = datetime.utcnow()
             authUser.timestamp = ts
             authUser.expired = getExpiredTimestamp(ts)
+            userManager.authorize(authUser)
             print(f"\"{account}\" logged in and refresh expiration until {authUser.expired}.")
             reply = {
                 "status": "ok",

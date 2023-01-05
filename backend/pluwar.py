@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from foundation import ChannelDispatcher, AuthServiceProtocol
+from encode import jsonEncode
+from foundation import ChannelDispatcher, AuthServiceProtocol, ChannelStatus
 from user import UserManager, AuthUser
 from websockets.legacy.server import WebSocketServerProtocol
 
@@ -41,4 +42,12 @@ class AuthService(AuthServiceProtocol):
             return None
 
     async def onUnauthorized(self, websocket: WebSocketServerProtocol, token: str | None):
+        print(f"{websocket.id} is unauthorized.")
+        reply = {
+            "channel": "authorization",
+            "status": ChannelStatus.failed,
+            "data": {}
+        }
+        payload = jsonEncode(reply)
+        await websocket.send(payload)  # 401 Unauthorized
         await websocket.close()

@@ -18,15 +18,18 @@ defaultConfig = {
 
 
 async def handle(websocket: WebSocketServerProtocol):
-    async for message in websocket:
-        if websocket.state == State.OPEN:
-            print(f"Msg from {websocket.id}.")
-        try:
-            datapack = json.loads(message)
-            if isinstance(datapack, dict):
-                await pluwar.onJsonMessage(websocket, datapack)
-        except Exception as e:
-            traceback.print_exception(e)
+    try:
+        async for message in websocket:
+            if websocket.state == State.OPEN:
+                print(f"Msg from {websocket.id}.")
+            try:
+                datapack = json.loads(message)
+                if isinstance(datapack, dict):
+                    await pluwar.onJsonMessage(websocket, datapack)
+            except Exception as e:
+                traceback.print_exception(e)
+    except Exception as e:
+        print(e)
     if websocket.state == State.CLOSED:
         print(f"{websocket.id} is closed.")
 
