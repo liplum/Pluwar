@@ -69,8 +69,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> onLogin() async {
+    final account = $account.text;
     final response = await DIO.post("${R.serverAuthUri}/login", data: {
-      "account": $account.text,
+      "account": account,
       "password": $password.text,
     });
     final payload = response.data.toString().fromJson(LoginPayload.fromJson);
@@ -88,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
         final token = payload.token;
         final expired = payload.expired;
         if (token == null || expired == null) return;
-        Connection.auth = Auth(token, expired);
+        Connection.auth = Auth(account: account, token: token, expired: expired);
         Connection.connectToGameServer();
         if (!mounted) return;
         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainMenuPage()));

@@ -21,6 +21,7 @@ def setupGame():
     import game
     channelDispatcher.registerChannel("joinRoom", game.onJoinRoom)
     channelDispatcher.registerChannel("queryRoom", game.onQueryRoom)
+    channelDispatcher.registerChannel("changeRoomPlayerStatus", game.changeRoomPlayerStatus)
 
 
 class AuthService(AuthServiceProtocol):

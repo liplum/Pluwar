@@ -2,7 +2,7 @@ import uuid
 from enum import Enum, auto
 from typing import Protocol, runtime_checkable
 
-from foundation import PayloadConvertible
+from encode import PayloadConvertible
 
 
 class ActionType(Enum):
@@ -100,6 +100,22 @@ class RoomStatus(Enum):
     end = auto()
 
 
+class PlayerEntry(PayloadConvertible):
+    def __init__(self, player: Player, isReady=False):
+        self.player = player
+        self.isReady = isReady
+
+    @property
+    def account(self) -> str:
+        return self.player.account
+
+    def toPayload(self) -> dict:
+        return {
+            "account": self.player.account,
+            "isReady": self.isReady
+        }
+
+
 class Room(PayloadConvertible):
     """
     Before battle starts, room state is [Waiting] until both players are ready to start.
@@ -107,45 +123,42 @@ class Room(PayloadConvertible):
 
     def __init__(self, manager: "RoomManager", roomId: str):
         self.manager = manager
-        self.roomStatus = RoomStatus.waiting
+        self.status = RoomStatus.waiting
+        self.roomSize = 2
         self.roomId = roomId
-        self.playerA: Player | None = None
-        self.playerB: Player | None = None
-        self.isPlayerAReady = False
-        self.isPlayerBReady = False
+        self.players: list[PlayerEntry] = []
 
     def isFull(self) -> bool:
-        return self.playerA is not None and self.playerB is not None
+        return len(self.players) >= self.roomSize
 
     def isInRoom(self, account: str) -> bool:
-        if self.playerA is not None and self.playerA.account == account:
-            return True
-        if self.playerB is not None and self.playerB.account == account:
-            return True
+        for entry in self.players:
+            if entry.account == account:
+                return True
         return False
 
+    def findPlayer(self, account: str) -> PlayerEntry | None:
+        for entry in self.players:
+            if entry.account == account:
+                return entry
+        return None
+
     def joinWith(self, account: str) -> bool:
-        if self.playerA is None:
-            self.playerA = Player(account)
+        if not self.isInRoom(account):
+            player = Player(account)
+            entry = PlayerEntry(player)
+            self.players.append(entry)
             self.manager.account2Room[account] = self
             return True
-        elif self.playerB is None:
-            self.playerB = Player(account)
-            self.manager.account2Room[account] = self
-            return True
-        return False
+        else:
+            return False
 
     def toPayload(self) -> dict:
         res = {
-            "roomStatus": self.roomStatus.name,
+            "status": self.status,
             "roomId": self.roomId,
+            "players": self.players
         }
-        if self.playerA is not None:
-            res["playerAAccount"] = self.playerA.account
-            res["isPlayerAReady"] = self.isPlayerAReady
-        if self.playerB is not None:
-            res["playerBAccount"] = self.playerB.account
-            res["isPlayerBReady"] = self.isPlayerBReady
         return res
 
 
@@ -154,9 +167,15 @@ class RoomManager:
         self.roomID2Room: dict[str, Room] = {}
         self.account2Room: dict[str, Room] = {}
 
-    def tryGetRoom(self, roomId: str) -> Room | None:
+    def tryGetRoomById(self, roomId: str) -> Room | None:
         if roomId in self.roomID2Room:
             return self.roomID2Room[roomId]
+        else:
+            return None
+
+    def tryGetRoomByAccount(self, account: str) -> Room | None:
+        if account in self.account2Room:
+            return self.account2Room[account]
         else:
             return None
 

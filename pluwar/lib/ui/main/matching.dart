@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pluwar/connection.dart';
-import 'package:pluwar/design/dialog.dart';
+import 'package:pluwar/ui/main/matching.entity.dart';
 import 'package:rettulf/rettulf.dart';
 
 class MatchingView extends StatefulWidget {
@@ -11,30 +11,31 @@ class MatchingView extends StatefulWidget {
 }
 
 class _MatchingViewState extends State<MatchingView> {
+  QueryRoomPayload? _room;
+
   @override
   void initState() {
     super.initState();
     Connection.listenToChannel("queryRoom", (msg) async {
       if (!mounted) return;
-      await context.showTip(title: "onMsg", desc: msg.data.toString(), ok: "OK");
+      final payload = QueryRoomPayload.fromJson(msg.data);
+      setState(() {
+        _room = payload;
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SizedBox(
-          width: 80,
-          height: 80,
-          child: CircleAvatar(),
-        ),
-        buildBody(),
-      ],
-    );
+    final room = _room;
+    if (room == null) {
+      return buildMatchingBody();
+    } else {
+      return RoomView(room: room);
+    }
   }
 
-  Widget buildBody() {
+  Widget buildMatchingBody() {
     return Center(
       child: Column(
         children: [
@@ -65,6 +66,92 @@ class _MatchingViewState extends State<MatchingView> {
   }
 
   Future<void> onMatch() async {
-    Connection.sendMessage("joinRoom", {});
+    Connection.sendMessage("joinRoom");
+  }
+}
+
+enum ReadyStatus {
+  ready,
+  unready;
+}
+
+class RoomView extends StatefulWidget {
+  final QueryRoomPayload room;
+
+  const RoomView({super.key, required this.room});
+
+  @override
+  State<RoomView> createState() => _RoomViewState();
+}
+
+class _RoomViewState extends State<RoomView> {
+  QueryRoomPayload get room => widget.room;
+
+  bool get isSelfReady {
+    for (final entry in room.players) {
+      if (entry.account == Connection.auth?.account) {
+        return entry.isReady;
+      }
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: buildFAB(),
+      body: CustomScrollView(
+        physics: const RangeMaintainingScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            title: room.roomId.text(),
+          ),
+          buildPlayerEntryArea(),
+        ],
+      ),
+    );
+  }
+
+  Widget buildFAB() {
+    if (isSelfReady) {
+      return FloatingActionButton.extended(
+        onPressed: () async{
+          await onChangeReadyStatus(ReadyStatus.unready);
+        },
+        label: "Cancel".text(),
+        icon: Icon(Icons.cancel_outlined),
+      );
+    } else {
+      return FloatingActionButton.extended(
+        onPressed: () async {
+          await onChangeReadyStatus(ReadyStatus.ready);
+        },
+        label: "Ready".text(),
+        icon: Icon(Icons.check_rounded),
+      );
+    }
+  }
+
+  Widget buildPlayerEntryArea() {
+    final items = room.players.map((player) => buildPlayerEntry(player)).toList();
+    return SliverList(delegate: SliverChildListDelegate(items));
+  }
+
+  Widget buildPlayerEntry(PlayerEntry entry) {
+    return ListTile(
+      title: entry.account.text(style: context.textTheme.titleLarge),
+      trailing:
+          entry.isReady ? const Icon(Icons.check_rounded, color: Colors.green) : const Icon(Icons.circle_outlined),
+    );
+  }
+
+  Future<void> onChangeReadyStatus(ReadyStatus status) async {
+    final account = Connection.auth?.account;
+    if (account != null) {
+      Connection.sendMessage("changeRoomPlayerStatus", {
+        "roomId": room.roomId,
+        "status": status.name,
+      });
+    }
   }
 }

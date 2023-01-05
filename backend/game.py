@@ -9,13 +9,16 @@ joinRoomRequestTemplate = {
     "roomId": "str | None"
 }
 
-joinRoomOKReplyTemplate = {
+queryRoomReplyTemplate = {
     "roomId": "RoomID",
-    "roomStatus": "waiting",
-    "playerAAccount": "PlayerA",
-    "playerBAccount": "PlayerB",
-    "isPlayerAReady": False,
-    "isPlayerBReady": False,
+    "status": "waiting",
+    "players": [{
+        "account": "PlayerA",
+        "isReady": False,
+    }, {
+        "account": "PlayerB",
+        "isReady": False,
+    }],
 }
 
 
@@ -28,12 +31,12 @@ joinRoomFailedReplyTemplate = {
     "reason": JoinRoomFailedReason.noSuchRoom
 }
 
-
+# TODO: Broadcast to all players in the same room.
 async def onJoinRoom(ctx: ChannelContext, json: dict):
     account = ctx.user.account
     if "roomId" in json:
         # Specify the room ID
-        room = roomManager.tryGetRoom(json["roomId"])
+        room = roomManager.tryGetRoomById(json["roomId"])
         if room is None:
             room = roomManager.newRoom()
             room.joinWith(account)
@@ -49,23 +52,50 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
                 room.joinWith(account)
                 await ctx.send(room.toPayload(), channel="queryRoom")
     else:
-        # Randomize a room
-        room = roomManager.newRoom()
-        room.joinWith(account)
-        await ctx.send(room.toPayload(), channel="queryRoom")
+        # Check if they have joined a room
+        room = roomManager.tryGetRoomByAccount(account)
+        if room is not None:
+            await ctx.send(room.toPayload(), channel="queryRoom")
+        else:
+            # Create a room
+            room = roomManager.newRoom()
+            room.joinWith(account)
+            await ctx.send(room.toPayload(), channel="queryRoom")
 
 
 matchQueryRequestTemplate = {
     "roomId": "RoomID"
 }
-matchQueryReplyTemplate = {
-    "roomId": "RoomID",
-    "playerAId": "PlayerA",
-    "playerBId": "PlayerB",
-    "isPlayerAReady": False,
-    "isPlayerBReady": False,
-}
 
 
 async def onQueryRoom(ctx: ChannelContext, json: dict):
     pass
+
+
+changeRoomPlayerStatusRequestTemplate = {
+    "roomId": "Room ID",
+    "status": "ready | unready",
+}
+
+
+def _parseChangRoomPlayerStatus(json: dict):
+    if "status" in json:
+        return json["status"] == "ready"
+    return False
+
+
+async def changeRoomPlayerStatus(ctx: ChannelContext, json: dict):
+    if "roomId" in json:
+        roomId = json["roomId"]
+        room = roomManager.tryGetRoomById(roomId)
+        if room is not None:
+            player = room.findPlayer(ctx.user.account)
+            if player is not None:
+                player.isReady = _parseChangRoomPlayerStatus(json)
+                await ctx.send(room.toPayload(), channel="queryRoom")
+            else:
+                await ctx.send({}, status=ChannelStatus.failed)
+        else:
+            await ctx.send({}, status=ChannelStatus.failed)
+    else:
+        await ctx.send({}, status=ChannelStatus.failed)

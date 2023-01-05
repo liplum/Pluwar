@@ -1,16 +1,9 @@
 from enum import Enum, auto
-from typing import Protocol, runtime_checkable, Callable, Awaitable, Any
+from typing import Protocol, runtime_checkable, Callable, Awaitable
 
 from encode import jsonEncode
 from user import AuthUser
 from websockets.legacy.server import WebSocketServerProtocol
-
-
-@runtime_checkable
-class PayloadConvertible(Protocol):
-    def toPayload(self) -> dict:
-        pass
-
 
 requestTemplate = {
     "channel": "channel's name",

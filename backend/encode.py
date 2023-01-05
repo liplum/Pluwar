@@ -1,7 +1,13 @@
 import datetime
 import enum
 import json
-from typing import Any
+from typing import Protocol, runtime_checkable, Any
+
+
+@runtime_checkable
+class PayloadConvertible(Protocol):
+    def toPayload(self) -> dict:
+        pass
 
 
 class PluwarJsonEncoder(json.JSONEncoder):
@@ -13,6 +19,8 @@ class PluwarJsonEncoder(json.JSONEncoder):
             return o.isoformat()
         if isinstance(o, enum.Enum):
             return o.name
+        if isinstance(o, PayloadConvertible):
+            return o.toPayload()
         return super().default(o)
 
 
