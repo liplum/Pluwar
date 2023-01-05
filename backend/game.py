@@ -37,8 +37,8 @@ joinRoomFailedReplyTemplate = {
 
 # TODO: Broadcast to all players in the same room.
 async def onJoinRoom(ctx: ChannelContext, json: dict):
-    account = ctx.user.account
-    room = roomManager.tryGetRoomByAccount(account)
+    user = ctx.user
+    room = roomManager.tryGetRoomByAccount(user.account)
     if room is not None:
         # Already joined room
         await ctx.send({
@@ -55,7 +55,7 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
                     "reason": RoomFailedReason.noSuchRoom
                 }, status=ChannelStatus.failed)
             else:
-                if room.isInRoom(account):
+                if room.isInRoom(user):
                     # If already in room, reply the state
                     await ctx.send(room.toPayload())
                 elif room.isFull():
@@ -65,12 +65,12 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
                     }, status=ChannelStatus.failed)
                 else:
                     # Join the room
-                    room.joinWith(account)
-                    await ctx.send(room.toPayload())
+                    room.joinWith(user)
+                    await ctx.sendAll(room, room.toPayload())
         else:
             # Create a room
             room = roomManager.newRoom()
-            room.joinWith(account)
+            room.joinWith(user)
             await ctx.send(room.toPayload())
 
 
@@ -97,7 +97,7 @@ async def onQueryRoom(ctx: ChannelContext, json: dict):
                 "reason": RoomFailedReason.noSuchRoom
             }, status=ChannelStatus.failed)
         else:
-            if room.isInRoom(ctx.user.account):
+            if room.isInRoom(ctx.user):
                 await ctx.send(room.toPayload())
             else:
                 await ctx.send({
@@ -141,7 +141,7 @@ async def onChangeRoomPlayerStatus(ctx: ChannelContext, json: dict):
             player = room.findPlayer(ctx.user.account)
             if player is not None:
                 player.isReady = _parseChangRoomPlayerStatus(json)
-                await ctx.send(room.toPayload(), channel="queryRoom")
+                await ctx.sendAll(room, room.toPayload())
             else:
                 await ctx.send({
                     "reason": RoomFailedReason.noSuchRoom
@@ -157,13 +157,14 @@ leaveRoomPlayerStatusReplyTemplate = {
 
 
 async def onLeaveRoomPlayerStatus(ctx: ChannelContext, json: dict):
+    user = ctx.user
     if "roomId" in json:
         roomId = json["roomId"]
         room = roomManager.tryGetRoomById(roomId)
-        account = ctx.user.account
         if room is not None:
-            if room.isInRoom(account):
-                room.leaveRoom(account)
+            if room.isInRoom(user):
+                room.leaveRoom(user)
+                await ctx.sendAll(room, room.toPayload(), channel="changeRoomPlayerStatus")
                 await ctx.send({}, channel="leaveRoom")
             else:
                 await ctx.send({

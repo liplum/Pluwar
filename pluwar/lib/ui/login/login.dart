@@ -6,7 +6,6 @@ import 'package:pluwar/r.dart';
 import 'package:pluwar/ui/login/login.entity.dart';
 import 'package:pluwar/ui/main/menu.dart';
 import 'package:rettulf/rettulf.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'register.dart';
 import 'shared.dart';
@@ -41,10 +40,15 @@ class _LoginPageState extends State<LoginPage> {
       [
         LoginField(
           controller: $account,
+          textInputAction: TextInputAction.next,
           label: "Account",
         ),
         PasswordField(
           controller: $password,
+          textInputAction: TextInputAction.go,
+          onSubmitted: (_) async {
+            await onLogin();
+          },
           label: "Password",
         ),
         Row(
@@ -93,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
         Connection.connectToGameServer();
         if (!mounted) return;
         final navigator = context.navigator;
-        while(navigator.canPop()){
+        while (navigator.canPop()) {
           navigator.pop();
         }
         navigator.push(MaterialPageRoute(builder: (_) => const MainMenuPage()));

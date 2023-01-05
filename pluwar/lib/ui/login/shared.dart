@@ -4,11 +4,15 @@ import 'package:rettulf/rettulf.dart';
 class LoginField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
+  final ValueChanged<String>? onSubmitted;
+  final TextInputAction? textInputAction;
 
   const LoginField({
     super.key,
     required this.controller,
     required this.label,
+    this.onSubmitted,
+    this.textInputAction,
   });
 
   @override
@@ -17,6 +21,8 @@ class LoginField extends StatelessWidget {
     return TextField(
       controller: controller,
       style: textStyle,
+      textInputAction: textInputAction,
+      onSubmitted: onSubmitted,
       decoration: InputDecoration(labelText: label, labelStyle: const TextStyle(fontSize: 25)),
     );
   }
@@ -25,11 +31,15 @@ class LoginField extends StatelessWidget {
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
+  final ValueChanged<String>? onSubmitted;
+  final TextInputAction? textInputAction;
 
   const PasswordField({
     super.key,
     required this.controller,
     required this.label,
+    this.onSubmitted,
+    this.textInputAction,
   });
 
   @override
@@ -46,6 +56,8 @@ class _PasswordFieldState extends State<PasswordField> {
       controller: widget.controller,
       style: textStyle,
       obscureText: !visible,
+      textInputAction: widget.textInputAction,
+      onSubmitted: widget.onSubmitted,
       decoration: InputDecoration(
         labelText: widget.label,
         labelStyle: const TextStyle(fontSize: 25),

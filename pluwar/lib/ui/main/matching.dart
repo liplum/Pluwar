@@ -28,7 +28,7 @@ class _MatchingViewState extends State<MatchingView> {
         });
       }
     });
-    Connection.listenToChannels(["joinRoom", "queryRoom"], (msg) async {
+    Connection.listenToChannels(["joinRoom", "queryRoom", "changeRoomPlayerStatus"], (msg) async {
       if (!mounted) return;
       final payload = QueryRoomPayload.fromJson(msg.data);
       setState(() {

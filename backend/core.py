@@ -1,8 +1,9 @@
 from enum import Enum, auto
-from typing import Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable, Iterable
 
 import logger
 from encode import PayloadConvertible
+from user import AuthUser
 
 
 class ActionType(Enum):
@@ -89,11 +90,6 @@ class ElfEntity:
         self.skillSlots = []
 
 
-class Player:
-    def __init__(self, account: str):
-        self.account = account
-
-
 class RoomStatus(Enum):
     waiting = auto()
     battle = auto()
@@ -101,17 +97,17 @@ class RoomStatus(Enum):
 
 
 class PlayerEntry(PayloadConvertible):
-    def __init__(self, player: Player, isReady=False):
-        self.player = player
+    def __init__(self, player: AuthUser, isReady=False):
+        self.user = player
         self.isReady = isReady
 
     @property
     def account(self) -> str:
-        return self.player.account
+        return self.user.account
 
     def toPayload(self) -> dict:
         return {
-            "account": self.player.account,
+            "account": self.user.account,
             "isReady": self.isReady
         }
 
@@ -131,9 +127,9 @@ class Room(PayloadConvertible):
     def isFull(self) -> bool:
         return len(self.players) >= self.roomSize
 
-    def isInRoom(self, account: str) -> bool:
+    def isInRoom(self, user: AuthUser) -> bool:
         for entry in self.players:
-            if entry.account == account:
+            if entry.account == user.account:
                 return True
         return False
 
@@ -143,8 +139,9 @@ class Room(PayloadConvertible):
                 return entry
         return None
 
-    def leaveRoom(self, account: str) -> bool:
+    def leaveRoom(self, user: AuthUser) -> bool:
         index = -1
+        account = user.account
         for i, entry in enumerate(self.players):
             if entry.account == account:
                 index = i
@@ -160,13 +157,12 @@ class Room(PayloadConvertible):
         else:
             return False
 
-    def joinWith(self, account: str) -> bool:
-        if not self.isInRoom(account):
-            player = Player(account)
-            entry = PlayerEntry(player)
+    def joinWith(self, user: AuthUser) -> bool:
+        if not self.isInRoom(user):
+            entry = PlayerEntry(user)
             self.players.append(entry)
-            self.manager.account2Room[account] = self
-            logger.g(f"{account} joined room[{self.roomId}].")
+            self.manager.account2Room[user.account] = self
+            logger.g(f"{user.account} joined room[{self.roomId}].")
             return True
         else:
             return False
@@ -178,6 +174,10 @@ class Room(PayloadConvertible):
             "players": self.players
         }
         return res
+
+    def resolveReceivers(self) -> Iterable[AuthUser]:
+        for player in self.players:
+            yield player.user
 
 
 class RoomManager:
