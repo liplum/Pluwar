@@ -1,9 +1,9 @@
 from enum import Enum, auto
-from typing import Protocol, runtime_checkable, Callable, Awaitable,Iterable
+from typing import Protocol, runtime_checkable, Callable, Awaitable, Iterable
 
 import logger
 import pluwar
-from encode import jsonEncode
+from encode import jsonEncode, PayloadConvertible
 from user import AuthUser
 from websockets.legacy.server import WebSocketServerProtocol
 
@@ -43,9 +43,14 @@ class ChannelContext:
         self.user = user
         self.channel = channel
 
-    async def send(self, json: dict, channel: str | None = None, status=ChannelStatus.ok):
+    async def send(
+            self, json: dict | PayloadConvertible,
+            channel: str | None = None, status=ChannelStatus.ok
+    ):
         if channel is None:
             channel = self.channel
+        if type(json) != dict and isinstance(json, PayloadConvertible):
+            json = json.toPayload()
         reply = {
             "channel": channel,
             "status": status.name,
@@ -54,10 +59,16 @@ class ChannelContext:
         payload = jsonEncode(reply)
         await self.websocket.send(payload)
 
-    async def sendAll(self, receivers: Receivers | MultiTokenProvider, json: dict, channel: str | None = None,
-                      status=ChannelStatus.ok):
+    async def sendAll(
+            self, receivers: Receivers | MultiTokenProvider,
+            json: dict | PayloadConvertible,
+            channel: str | None = None,
+            status=ChannelStatus.ok
+    ):
         if channel is None:
             channel = self.channel
+        if type(json) != dict and isinstance(json, PayloadConvertible):
+            json = json.toPayload()
         reply = {
             "channel": channel,
             "status": status.name,

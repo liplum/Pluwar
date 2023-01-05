@@ -176,20 +176,17 @@ class _RoomViewState extends State<RoomView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: buildFAB(),
-      body: CustomScrollView(
-        physics: const RangeMaintainingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            leading: const Icon(Icons.videogame_asset_outlined),
-            actions: [
-              buildLeaveRoom(),
-            ],
-            title: room.roomId.text(),
-          ),
-          buildPlayerEntryArea(),
+      appBar: AppBar(
+        leading: const Icon(Icons.videogame_asset_outlined),
+        actions: [
+          buildLeaveRoom(),
         ],
+        title: room.roomId.text(),
       ),
+      body: [
+        buildPlayerEntryArea().flexible(flex: 2),
+        const RoomChatArea().padAll(10).flexible(flex: 3),
+      ].column(),
     );
   }
 
@@ -202,49 +199,162 @@ class _RoomViewState extends State<RoomView> {
     );
   }
 
-  Widget buildFAB() {
+  Widget buildReadyBtn() {
     if (isSelfReady) {
-      return FloatingActionButton.extended(
+      return CupertinoButton(
         onPressed: () async {
           await onChangeReadyStatus(ReadyStatus.unready);
         },
-        label: "Cancel".text(),
-        icon: Icon(Icons.cancel_outlined),
+        child: "Cancel".text(),
       );
     } else {
-      return FloatingActionButton.extended(
+      return CupertinoButton(
         onPressed: () async {
           await onChangeReadyStatus(ReadyStatus.ready);
         },
-        label: "Ready".text(),
-        icon: Icon(Icons.check_rounded),
+        child: "Ready".text(),
       );
     }
   }
 
   Widget buildPlayerEntryArea() {
     final items = room.players.map((player) => buildPlayerEntry(player)).toList();
-    return SliverList(delegate: SliverChildListDelegate(items));
+    return items.column();
   }
 
   Widget buildPlayerEntry(PlayerEntry entry) {
+    final Widget? trailing;
+    if (entry.account == Connection.auth?.account) {
+      trailing = buildReadyBtn();
+    } else {
+      trailing = null;
+    }
     return ListTile(
       title: entry.account.text(style: context.textTheme.titleLarge),
-      trailing:
-          entry.isReady ? const Icon(Icons.check_rounded, color: Colors.green) : const Icon(Icons.circle_outlined),
+      leading: entry.isReady ? const Icon(Icons.check_rounded, color: Colors.green) : const Icon(Icons.circle_outlined),
+      trailing: trailing,
     );
   }
 
   Future<void> onLeaveRoom() async {
-    Connection.sendMessage("leaveRoom", {
-      "roomId": room.roomId,
-    });
+    Connection.sendMessage("leaveRoom", {});
   }
 
   Future<void> onChangeReadyStatus(ReadyStatus status) async {
     Connection.sendMessage("changeRoomPlayerStatus", {
-      "roomId": room.roomId,
       "status": status.name,
     });
+  }
+}
+
+class RoomChatArea extends StatefulWidget {
+  const RoomChatArea({super.key});
+
+  @override
+  State<RoomChatArea> createState() => _RoomChatAreaState();
+}
+
+class _RoomChatAreaState extends State<RoomChatArea> {
+  List<RoomChatEntry> chats = [];
+  final $chat = TextEditingController();
+  final chatScrollCtrl = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    Connection.listenToChannel("chatInRoom", (msg) {
+      final chat = RoomChatEntry.fromJson(msg.data);
+      if (!mounted) return;
+      setState(() {
+        chats.add(chat);
+      });
+      scrollToEnd();
+    });
+    Connection.listenToChannel("checkChatInRoom", (msg) {
+      final payload = RoomChatsPayload.fromJson(msg.data);
+      if (!mounted) return;
+      setState(() {
+        chats = payload.chats;
+      });
+      scrollToEnd();
+    });
+    Connection.sendMessage("checkChatInRoom");
+  }
+
+  void scrollToEnd() {
+    chatScrollCtrl
+        .animateTo(
+      chatScrollCtrl.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.fastLinearToSlowEaseIn,
+    )
+        .then((value) {
+      chatScrollCtrl.animateTo(
+        chatScrollCtrl.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.fastLinearToSlowEaseIn,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return [
+      ListView.separated(
+        controller: chatScrollCtrl,
+        itemCount: chats.length,
+        itemBuilder: (ctx, i) {
+          return buildEntry(chats[i]);
+        },
+        separatorBuilder: (_, i) => Divider(thickness: 0),
+      ).expanded(),
+      buildTextArea(),
+    ].column();
+  }
+
+  Widget buildTextArea() {
+    return [
+      TextFormField(
+        controller: $chat,
+      ).flexible(flex: 3),
+      $chat <<
+          (_, v, ___) => CupertinoButton(
+                onPressed: !canSendSuchText(v.text)
+                    ? null
+                    : () async {
+                        await onSendChat();
+                      },
+                child: "Send".text(),
+              ).inCard(elevation: 3).flexible(flex: 1),
+    ].row(maa: MainAxisAlignment.spaceBetween).padFromLTRB(8, 2, 4, 2).inCard(elevation: 2);
+  }
+
+  bool canSendSuchText(String text) {
+    return text.trim().isNotEmpty;
+  }
+
+  Widget buildEntry(RoomChatEntry entry) {
+    return [
+      [
+        entry.sender.text(style: context.textTheme.bodySmall),
+        entry.ts.toLocal().toString().text(style: context.textTheme.bodySmall),
+      ].row(maa: MainAxisAlignment.spaceBetween),
+      entry.content.text(),
+    ].column(caa: CrossAxisAlignment.start);
+  }
+
+  Future<void> onSendChat() async {
+    final text = $chat.text;
+    $chat.clear();
+    Connection.sendMessage("chatInRoom", {
+      "content": text,
+    });
+  }
+
+  @override
+  void dispose() {
+    chatScrollCtrl.dispose();
+    $chat.dispose();
+    super.dispose();
   }
 }

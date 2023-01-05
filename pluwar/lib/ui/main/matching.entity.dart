@@ -61,3 +61,27 @@ class CheckMyRoomPayload {
 
   factory CheckMyRoomPayload.fromJson(Map<String, dynamic> json) => _$CheckMyRoomPayloadFromJson(json);
 }
+
+@JsonSerializable()
+class RoomChatEntry {
+  @JsonKey()
+  final String sender;
+  @JsonKey()
+  final String content;
+  @JsonKey()
+  final DateTime ts;
+
+  const RoomChatEntry(this.sender, this.content, this.ts);
+
+  factory RoomChatEntry.fromJson(Map<String, dynamic> json) => _$RoomChatEntryFromJson(json);
+}
+
+@JsonSerializable()
+class RoomChatsPayload {
+  @JsonKey()
+  final List<RoomChatEntry> chats;
+
+  const RoomChatsPayload(this.chats);
+
+  factory RoomChatsPayload.fromJson(Map<String, dynamic> json) => _$RoomChatsPayloadFromJson(json);
+}

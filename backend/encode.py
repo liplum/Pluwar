@@ -16,7 +16,7 @@ class PluwarJsonEncoder(json.JSONEncoder):
 
     def default(self, o: Any) -> Any:
         if isinstance(o, datetime.datetime):
-            return o.isoformat()
+            return o.isoformat() + "Z"
         if isinstance(o, enum.Enum):
             return o.name
         if isinstance(o, PayloadConvertible):

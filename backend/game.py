@@ -1,9 +1,21 @@
 from enum import Enum, auto
-
 import logger
-from core import RoomManager, Room
+from core import RoomManager, Room, RoomChatEntry
 from foundation import ChannelContext, ChannelStatus
 from user import AuthUser
+from datetime import datetime
+
+
+def registerChannels(register):
+    register("joinRoom", onJoinRoom)
+    register("createRoom", onCreateRoom)
+    register("checkMyRoom", onCheckMyRoom)
+    register("queryRoom", onQueryRoom)
+    register("changeRoomPlayerStatus", onChangeRoomPlayerStatus)
+    register("leaveRoom", onLeaveRoomPlayerStatus)
+    register("chatInRoom", onChatInRoom)
+    register("checkChatInRoom", onCheckChatInRoom)
+
 
 roomManager = RoomManager()
 
@@ -46,10 +58,11 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
     user = ctx.user
     room = roomManager.tryGetRoomByAccount(user.account)
     if room is not None:
-        # Already joined room
-        await ctx.send({
-            "reason": RoomFailedReason.alreadyInRoom
-        }, status=ChannelStatus.failed)
+        if "roomId" in json:
+            # Already joined room
+            await ctx.send({
+                "reason": RoomFailedReason.alreadyInRoom
+            }, status=ChannelStatus.failed)
     else:
         # Not yet joined room
         if "roomId" in json:
@@ -63,7 +76,7 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
             else:
                 if room.isInRoom(user):
                     # If already in room, reply the state
-                    await ctx.send(room.toPayload())
+                    await ctx.send(room)
                 elif room.isFull():
                     # Player cannot join a full room
                     await ctx.send({
@@ -72,17 +85,17 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
                 else:
                     # Join the room
                     room.joinWith(user)
-                    await ctx.sendAll(room, room.toPayload())
+                    await ctx.sendAll(room, room)
         else:
             # Create a room
             matched = _findBestMatchedRoom(user)
             if matched is None:
                 room = roomManager.newRoom()
                 room.joinWith(user)
-                await ctx.send(room.toPayload())
+                await ctx.send(room)
             else:
                 matched.joinWith(user)
-                await ctx.sendAll(matched, matched.toPayload())
+                await ctx.sendAll(matched, matched)
 
 
 createRoomRequestTemplate = {
@@ -109,7 +122,7 @@ async def onQueryRoom(ctx: ChannelContext, json: dict):
             }, status=ChannelStatus.failed)
         else:
             if room.isInRoom(ctx.user):
-                await ctx.send(room.toPayload())
+                await ctx.send(room)
             else:
                 await ctx.send({
                     "reason": RoomFailedReason.noPermission
@@ -133,7 +146,6 @@ async def onCheckMyRoom(ctx: ChannelContext, json: dict):
 
 
 changeRoomPlayerStatusRequestTemplate = {
-    "roomId": "Room ID",
     "status": "ready | unready",
 }
 
@@ -145,39 +157,67 @@ def _parseChangRoomPlayerStatus(json: dict):
 
 
 async def onChangeRoomPlayerStatus(ctx: ChannelContext, json: dict):
-    if "roomId" in json:
-        roomId = json["roomId"]
-        room = roomManager.tryGetRoomById(roomId)
-        if room is not None:
-            player = room.findPlayer(ctx.user.account)
-            if player is not None:
-                player.isReady = _parseChangRoomPlayerStatus(json)
-                await ctx.sendAll(room, room.toPayload())
-            else:
-                await ctx.send({
-                    "reason": RoomFailedReason.noSuchRoom
-                }, status=ChannelStatus.failed)
+    room = roomManager.tryGetRoomByAccount(ctx.user.account)
+    if room is None:
+        return
+    player = room.findPlayer(ctx.user.account)
+    if player is not None:
+        player.isReady = _parseChangRoomPlayerStatus(json)
+        await ctx.sendAll(room, room)
 
 
-leaveRoomPlayerStatusRequestTemplate = {
-    "roomId": "Room ID",
+leaveRoomPlayerRequestTemplate = {
 }
 
-leaveRoomPlayerStatusReplyTemplate = {
+leaveRoomPlayerReplyTemplate = {
 }
 
 
 async def onLeaveRoomPlayerStatus(ctx: ChannelContext, json: dict):
     user = ctx.user
-    if "roomId" in json:
-        roomId = json["roomId"]
-        room = roomManager.tryGetRoomById(roomId)
-        if room is not None:
-            if room.isInRoom(user):
-                room.leaveRoom(user)
-                await ctx.sendAll(room, room.toPayload(), channel="changeRoomPlayerStatus")
-                await ctx.send({}, channel="leaveRoom")
-            else:
-                await ctx.send({
-                    "reason": RoomFailedReason.noSuchRoom
-                }, status=ChannelStatus.failed)
+    room = roomManager.tryGetRoomByAccount(user.account)
+    if room is None:
+        return
+    if room.isInRoom(user):
+        room.leaveRoom(user)
+        await ctx.send({}, channel="leaveRoom")
+        await ctx.sendAll(room, room, channel="changeRoomPlayerStatus")
+
+
+chatInRoomRequestTemplate = {
+    "content": "balabala..."
+}
+chatInRoomReplyTemplate = {
+    "account": "PlayerA",
+    "content": "balabala...",
+    "ts": "utc datetime"
+}
+
+
+async def onChatInRoom(ctx: ChannelContext, json: dict):
+    if "content" in json:
+        content: str = json["content"]
+        content = content.strip()
+        if len(content) > 0:
+            room = roomManager.tryGetRoomByAccount(ctx.user.account)
+            if room is not None:
+                chat = RoomChatEntry(ctx.user, content, datetime.utcnow())
+                room.chats.append(chat)
+                await ctx.sendAll(room, chat)
+
+
+checkChatInRoomRequestTemplate = {
+    "chats": [{
+        "sender": "Account",
+        "content": "balabala...",
+        "ts": "utc time"
+    }]
+}
+
+
+async def onCheckChatInRoom(ctx: ChannelContext, json: dict):
+    room = roomManager.tryGetRoomByAccount(ctx.user.account)
+    if room is not None:
+        await ctx.send({
+            "chats": room.chats
+        })

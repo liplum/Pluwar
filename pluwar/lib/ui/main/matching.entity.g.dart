@@ -65,3 +65,29 @@ Map<String, dynamic> _$CheckMyRoomPayloadToJson(CheckMyRoomPayload instance) =>
     <String, dynamic>{
       'roomId': instance.roomId,
     };
+
+RoomChatEntry _$RoomChatEntryFromJson(Map<String, dynamic> json) =>
+    RoomChatEntry(
+      json['sender'] as String,
+      json['content'] as String,
+      DateTime.parse(json['ts'] as String),
+    );
+
+Map<String, dynamic> _$RoomChatEntryToJson(RoomChatEntry instance) =>
+    <String, dynamic>{
+      'sender': instance.sender,
+      'content': instance.content,
+      'ts': instance.ts.toIso8601String(),
+    };
+
+RoomChatsPayload _$RoomChatsPayloadFromJson(Map<String, dynamic> json) =>
+    RoomChatsPayload(
+      (json['chats'] as List<dynamic>)
+          .map((e) => RoomChatEntry.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$RoomChatsPayloadToJson(RoomChatsPayload instance) =>
+    <String, dynamic>{
+      'chats': instance.chats,
+    };

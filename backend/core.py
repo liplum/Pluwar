@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from typing import Protocol, runtime_checkable, Iterable
-
+from datetime import datetime
 import logger
 from encode import PayloadConvertible
 from user import AuthUser
@@ -112,6 +112,20 @@ class PlayerEntry(PayloadConvertible):
         }
 
 
+class RoomChatEntry(PayloadConvertible):
+    def __init__(self, sender: AuthUser, content: str, timestamp: datetime):
+        self.sender = sender
+        self.content = content
+        self.timestamp = timestamp
+
+    def toPayload(self) -> dict:
+        return {
+            "sender": self.sender.account,
+            "content": self.content,
+            "ts": self.timestamp
+        }
+
+
 class Room(PayloadConvertible):
     """
     Before battle starts, room state is [Waiting] until both players are ready to start.
@@ -123,6 +137,7 @@ class Room(PayloadConvertible):
         self.roomSize = 2
         self.roomId = roomId
         self.players: list[PlayerEntry] = []
+        self.chats: list[RoomChatEntry] = []
 
     def isFull(self) -> bool:
         return len(self.players) >= self.roomSize
@@ -178,8 +193,6 @@ class Room(PayloadConvertible):
     def resolveReceivers(self) -> Iterable[AuthUser]:
         for player in self.players:
             yield player.user
-
-
 class RoomManager:
     def __init__(self):
         self.roomID2Room: dict[str, Room] = {}
