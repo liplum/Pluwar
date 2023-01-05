@@ -78,5 +78,7 @@ class ChannelDispatcher:
                     channel = self.name2Channel[channelName]
                     data = json["data"]
                     await channel(ChannelContext(websocket, authUser, channelName), data)
+                else:
+                    print(f'Unknown channel "{channelName}"')
         else:
             await self.authService.onUnauthorized(websocket, token=None)

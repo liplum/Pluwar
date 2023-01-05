@@ -5,61 +5,39 @@ import 'package:pluwar/ui/battle/battle_status.dart';
 import 'package:pluwar/ui/login/login.dart';
 import 'ui/main/menu.dart';
 import 'ui/main/backpack.dart';
-import 'ui/battle/exit.dart';
 
-class PluwarApp extends StatelessWidget {
+// ignore: non_constant_identifier_names
+final AppKey = GlobalKey<NavigatorState>();
+// ignore: non_constant_identifier_names
+BuildContext get AppCtx => AppKey.currentState!.context;
+
+class PluwarApp extends StatefulWidget {
   const PluwarApp({super.key});
 
+  @override
+  State<StatefulWidget> createState() => _PluwarAppState();
+}
+
+class _PluwarAppState extends State<PluwarApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     debugPaintSizeEnabled = false;
     return MaterialApp(
-        title: 'Pluwar',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home:Exit());
-        //LoginPage()
-            /*
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: 300,
-                  height: 100,
-                  color: Colors.grey,
-                  child: EnemyStatus(),
-                )
-              ],
-            ),
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 300,
-                      height: 100,
-                      color: Colors.grey,
-                      child: AlliedStatus(),
-                    )
-                  ],
-                ),
-                BattleMenu(),
-              ],
-            ),
-          ],
-        )
-
-
-
-
+      title: 'Pluwar',
+      debugShowCheckedModeBanner: false,
+      navigatorKey: AppKey,
+      theme: ThemeData(
+        useMaterial3: true,
+        primarySwatch: Colors.blue,
+      ),
+      home: Navigator(
+        onGenerateRoute: _onGenerateRoute,
+      ),
     );
+  }
 
-             */
+  Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
+    return MaterialPageRoute(builder: (_) => const LoginPage());
   }
 }

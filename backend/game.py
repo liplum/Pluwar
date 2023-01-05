@@ -6,7 +6,7 @@ from foundation import ChannelContext, ChannelStatus
 roomManager = RoomManager()
 
 joinRoomRequestTemplate = {
-    "roomId": "str | None"
+    "roomId": "str | Optional"
 }
 
 queryRoomReplyTemplate = {
@@ -30,6 +30,7 @@ class JoinRoomFailedReason(Enum):
 joinRoomFailedReplyTemplate = {
     "reason": JoinRoomFailedReason.noSuchRoom
 }
+
 
 # TODO: Broadcast to all players in the same room.
 async def onJoinRoom(ctx: ChannelContext, json: dict):
@@ -97,5 +98,26 @@ async def changeRoomPlayerStatus(ctx: ChannelContext, json: dict):
                 await ctx.send({}, status=ChannelStatus.failed)
         else:
             await ctx.send({}, status=ChannelStatus.failed)
-    else:
-        await ctx.send({}, status=ChannelStatus.failed)
+
+
+leaveRoomPlayerStatusRequestTemplate = {
+    "roomId": "Room ID",
+}
+
+leaveRoomPlayerStatusReplyTemplate = {
+}
+
+
+async def leaveRoomPlayerStatus(ctx: ChannelContext, json: dict):
+    if "roomId" in json:
+        roomId = json["roomId"]
+        room = roomManager.tryGetRoomById(roomId)
+        account = ctx.user.account
+        if room is not None:
+            if room.isInRoom(account):
+                room.leaveRoom(account)
+                await ctx.send({}, channel="leaveRoom")
+            else:
+                await ctx.send({}, status=ChannelStatus.failed)
+        else:
+            await ctx.send({}, status=ChannelStatus.failed)

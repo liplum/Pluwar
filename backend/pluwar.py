@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from foundation import ChannelDispatcher, AuthServiceProtocol
+from encode import jsonEncode
+from foundation import ChannelDispatcher, AuthServiceProtocol, ChannelStatus
 from user import UserManager, AuthUser
 from websockets.legacy.server import WebSocketServerProtocol
 
@@ -22,6 +23,7 @@ def setupGame():
     channelDispatcher.registerChannel("joinRoom", game.onJoinRoom)
     channelDispatcher.registerChannel("queryRoom", game.onQueryRoom)
     channelDispatcher.registerChannel("changeRoomPlayerStatus", game.changeRoomPlayerStatus)
+    channelDispatcher.registerChannel("leaveRoom", game.leaveRoomPlayerStatus)
 
 
 class AuthService(AuthServiceProtocol):
@@ -41,4 +43,12 @@ class AuthService(AuthServiceProtocol):
             return None
 
     async def onUnauthorized(self, websocket: WebSocketServerProtocol, token: str | None):
+        print(f"{websocket.id} is unauthorized.")
+        reply = {
+            "channel": "authorization",
+            "status": ChannelStatus.failed,
+            "data": {}
+        }
+        payload = jsonEncode(reply)
+        await websocket.send(payload)  # 401 Unauthorized
         await websocket.close()

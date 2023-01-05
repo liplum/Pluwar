@@ -3,6 +3,7 @@ import 'package:pluwar/connection.dart';
 import 'package:pluwar/convert.dart';
 import 'package:pluwar/design/dialog.dart';
 import 'package:pluwar/r.dart';
+import 'package:rettulf/rettulf.dart';
 
 import 'shared.dart';
 import 'register.entity.dart';
@@ -128,6 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
           desc: "Your account was signed up, please memorize the password.",
           ok: "OK",
         );
+        context.navigator.pop();
         break;
     }
   }

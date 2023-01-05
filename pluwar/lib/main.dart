@@ -5,6 +5,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pluwar/app.dart';
 import 'package:pluwar/r.dart';
 
+import 'event_handler.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!kIsWeb) {
@@ -14,5 +16,6 @@ void main() async {
     R.tmpDir = tmpDir.path;
     await Hive.initFlutter(R.hiveDir);
   }
+  initEventHandler();
   runApp(const PluwarApp());
 }
