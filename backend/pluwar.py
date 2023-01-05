@@ -9,6 +9,7 @@ from websockets.legacy.server import WebSocketServerProtocol
 
 config: dict[str, Any] = {}
 channelDispatcher = ChannelDispatcher()
+token2Websocket = {}
 
 
 async def onJsonMessage(websocket: WebSocketServerProtocol, json: dict):

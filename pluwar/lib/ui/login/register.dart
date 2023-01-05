@@ -54,14 +54,20 @@ class _RegisterPageState extends State<RegisterPage> {
           LoginField(
             controller: $account,
             label: "Account",
+            textInputAction: TextInputAction.next,
           ),
           PasswordField(
             controller: $password,
             label: "Password",
+            textInputAction: TextInputAction.next,
           ),
           PasswordField(
             controller: $passwordAgain,
             label: "Confirm Password",
+            textInputAction: TextInputAction.go,
+            onSubmitted: (_) async {
+              await onRegister();
+            },
           ),
           LoginButton(
             text: "Sign up",

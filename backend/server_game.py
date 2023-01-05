@@ -8,6 +8,7 @@ from websockets.connection import State
 import fs
 import logger
 import pluwar
+import stroage
 import user
 
 defaultConfig = {
@@ -22,7 +23,7 @@ async def handle(websocket: WebSocketServerProtocol):
     try:
         async for message in websocket:
             if websocket.state == State.OPEN:
-                logger.v(f"Msg from {websocket.id}.")
+                logger.v(f"msg from {websocket.id}.")
             try:
                 datapack = json.loads(message)
                 if isinstance(datapack, dict):
@@ -46,7 +47,9 @@ async def serve(authConnection, conf: dict | None = None):
 
 
 async def main():
-    await serve()
+    conf = await fs.readAsync(path="config.game.json", default=defaultConfig)
+    authConnection = stroage.openConnection(conf["authDatabase"])
+    await serve(authConnection)
 
 
 if __name__ == '__main__':
