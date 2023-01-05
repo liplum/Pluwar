@@ -205,3 +205,8 @@ class RoomManager:
         self.roomID2Room[roomId] = room
         logger.g(f"room[{roomId}] is created.")
         return room
+
+    def availableRooms(self) -> Iterable[Room]:
+        for room in self.roomID2Room.values():
+            if not room.isFull():
+                yield room

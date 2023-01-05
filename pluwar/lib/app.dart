@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:pluwar/route.dart';
 import 'package:pluwar/ui/battle/battle_menu.dart';
 import 'package:pluwar/ui/battle/battle_status.dart';
 import 'package:pluwar/ui/login/login.dart';
@@ -32,12 +33,18 @@ class _PluwarAppState extends State<PluwarApp> {
         primarySwatch: Colors.blue,
       ),
       home: Navigator(
+        initialRoute: Routes.login,
         onGenerateRoute: _onGenerateRoute,
+        onUnknownRoute: _onUnknownRoute,
       ),
     );
   }
 
   Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
-    return MaterialPageRoute(builder: (_) => const LoginPage());
+    return Routes.onGenerate(settings.name, settings.arguments);
+  }
+
+  Route<dynamic>? _onUnknownRoute(RouteSettings settings) {
+    return Routes.onUnknown(settings.name, settings.arguments);
   }
 }

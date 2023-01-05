@@ -3,6 +3,7 @@ import 'package:pluwar/connection.dart';
 import 'package:pluwar/convert.dart';
 import 'package:pluwar/design/dialog.dart';
 import 'package:pluwar/r.dart';
+import 'package:pluwar/route.dart';
 import 'package:pluwar/ui/login/login.entity.dart';
 import 'package:pluwar/ui/main/menu.dart';
 import 'package:rettulf/rettulf.dart';
@@ -63,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
             LoginButton(
               text: "Sign up",
               onTap: () {
-                Navigator.of(ctx).push(MaterialPageRoute(builder: (_) => const RegisterPage()));
+                ctx.navigator.pushNamed(Routes.register);
               },
             ),
           ],
@@ -100,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
         while (navigator.canPop()) {
           navigator.pop();
         }
-        navigator.push(MaterialPageRoute(builder: (_) => const MainMenuPage()));
+        navigator.pushNamed(Routes.mainMenu);
         break;
     }
   }

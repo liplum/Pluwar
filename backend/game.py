@@ -1,8 +1,9 @@
 from enum import Enum, auto
 
 import logger
-from core import RoomManager
+from core import RoomManager, Room
 from foundation import ChannelContext, ChannelStatus
+from user import AuthUser
 
 roomManager = RoomManager()
 
@@ -35,7 +36,12 @@ joinRoomFailedReplyTemplate = {
 }
 
 
-# TODO: Broadcast to all players in the same room.
+def _findBestMatchedRoom(user: AuthUser) -> Room | None:
+    for candidate in roomManager.availableRooms():
+        return candidate
+    return None
+
+
 async def onJoinRoom(ctx: ChannelContext, json: dict):
     user = ctx.user
     room = roomManager.tryGetRoomByAccount(user.account)
@@ -69,9 +75,14 @@ async def onJoinRoom(ctx: ChannelContext, json: dict):
                     await ctx.sendAll(room, room.toPayload())
         else:
             # Create a room
-            room = roomManager.newRoom()
-            room.joinWith(user)
-            await ctx.send(room.toPayload())
+            matched = _findBestMatchedRoom(user)
+            if matched is None:
+                room = roomManager.newRoom()
+                room.joinWith(user)
+                await ctx.send(room.toPayload())
+            else:
+                matched.joinWith(user)
+                await ctx.sendAll(matched, matched.toPayload())
 
 
 createRoomRequestTemplate = {

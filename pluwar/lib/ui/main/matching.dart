@@ -181,6 +181,7 @@ class _RoomViewState extends State<RoomView> {
         physics: const RangeMaintainingScrollPhysics(),
         slivers: [
           SliverAppBar(
+            leading: const Icon(Icons.videogame_asset_outlined),
             actions: [
               buildLeaveRoom(),
             ],
