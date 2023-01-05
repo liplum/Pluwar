@@ -6,7 +6,7 @@ from foundation import ChannelContext, ChannelStatus
 roomManager = RoomManager()
 
 joinRoomRequestTemplate = {
-    "roomId": "str | None"
+    "roomId": "str | Optional"
 }
 
 queryRoomReplyTemplate = {

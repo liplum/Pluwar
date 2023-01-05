@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pluwar/connection.dart';
+import 'package:pluwar/design/multiplatform.dart';
 import 'package:pluwar/ui/main/matching.entity.dart';
 import 'package:rettulf/rettulf.dart';
 
@@ -13,6 +14,7 @@ class MatchingView extends StatefulWidget {
 
 class _MatchingViewState extends State<MatchingView> {
   QueryRoomPayload? _room;
+  final $roomNumber = TextEditingController();
 
   @override
   void initState() {
@@ -48,7 +50,10 @@ class _MatchingViewState extends State<MatchingView> {
       child: Column(
         children: [
           menuTitle().center().flexible(flex: 1),
-          matchingBtn().center().flexible(flex: 2),
+          [
+            matchingBtn(),
+            joinRoomBtn(),
+          ].column(maa: MainAxisAlignment.spaceEvenly).center().flexible(flex: 2),
         ],
       ),
     );
@@ -73,8 +78,51 @@ class _MatchingViewState extends State<MatchingView> {
     );
   }
 
+  Widget joinRoomBtn() {
+    return ElevatedButton(
+      onPressed: () async {
+        await onJoinRoom();
+      },
+      child: Text(
+        "Join",
+        style: TextStyle(fontSize: 40),
+      ),
+    );
+  }
+
   Future<void> onMatch() async {
     Connection.sendMessage("joinRoom");
+  }
+
+  Future<void> onJoinRoom() async {
+    final confirm = await context.show$Dialog$(make: (ctx) {
+      return $Dialog$(
+        title: "Join Room",
+        make: (_) {
+          return $TextField$(
+            controller: $roomNumber,
+            labelText: "Room Number",
+          );
+        },
+        primary: $Action$(
+          text: "Join",
+          onPressed: () {
+            ctx.navigator.pop(true);
+          },
+        ),
+        secondary: $Action$(
+          text: "Not Now",
+          onPressed: () {
+            ctx.navigator.pop(false);
+          },
+        ),
+      );
+    });
+    if (confirm == true) {
+      Connection.sendMessage("joinRoom", {
+        "roomId": $roomNumber.text,
+      });
+    }
   }
 }
 
