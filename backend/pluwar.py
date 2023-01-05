@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any
 
+import logger
 from encode import jsonEncode
 from foundation import ChannelDispatcher, AuthServiceProtocol, ChannelStatus
 from user import UserManager, AuthUser
@@ -45,7 +46,7 @@ class AuthService(AuthServiceProtocol):
             return None
 
     async def onUnauthorized(self, websocket: WebSocketServerProtocol, token: str | None):
-        print(f"{websocket.id} is unauthorized.")
+        logger.i(f"{websocket.id} is unauthorized.")
         reply = {
             "channel": "authorization",
             "status": ChannelStatus.failed,

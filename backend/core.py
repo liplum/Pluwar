@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from typing import Protocol, runtime_checkable
 
+import logger
 from encode import PayloadConvertible
 
 
@@ -154,6 +155,7 @@ class Room(PayloadConvertible):
             if len(self.players) == 0:
                 if self.roomId in self.manager.roomID2Room:
                     self.manager.roomID2Room.pop(self.roomId)
+            logger.g(f"{account} left room[{self.roomId}].")
             return True
         else:
             return False
@@ -164,6 +166,7 @@ class Room(PayloadConvertible):
             entry = PlayerEntry(player)
             self.players.append(entry)
             self.manager.account2Room[account] = self
+            logger.g(f"{account} joined room[{self.roomId}].")
             return True
         else:
             return False
@@ -200,4 +203,5 @@ class RoomManager:
         roomId = str(self.curRoomIdPtr)
         room = Room(self, roomId)
         self.roomID2Room[roomId] = room
+        logger.g(f"room[{roomId}] is created.")
         return room

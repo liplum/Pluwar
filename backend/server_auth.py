@@ -5,6 +5,8 @@ import uuid
 from aiohttp import web
 import fs
 import re
+
+import logger
 import stroage
 from encode import jsonEncode
 
@@ -37,7 +39,7 @@ async def handleLogin(request: web.Request):
             authUser.timestamp = ts
             authUser.expired = getExpiredTimestamp(ts)
             userManager.authorize(authUser)
-            print(f"\"{account}\" logged in and refresh expiration until {authUser.expired}.")
+            logger.v(f"\"{account}\" logged in and refresh expiration until {authUser.expired}.")
             reply = {
                 "status": "ok",
                 "token": authUser.token,
@@ -56,7 +58,7 @@ async def handleLogin(request: web.Request):
             expired = getExpiredTimestamp(ts)
             authed = AuthUser(usr, token, ts, expired)
             userManager.authorize(authed)
-            print(f"\"{account}\" logged in and will be expired after {expired}.")
+            logger.v(f"\"{account}\" logged in and will be expired after {expired}.")
             reply = {
                 "status": "ok",
                 "token": token,
@@ -86,7 +88,7 @@ async def handleRegister(request: web.Request):
             }
         else:
             userManager.addUser(User(account, password))
-            print(f"\"{account}\" signed up.")
+            logger.v(f"\"{account}\" signed up.")
             reply = {
                 "status": "done"
             }

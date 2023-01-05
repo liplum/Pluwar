@@ -92,7 +92,11 @@ class _LoginPageState extends State<LoginPage> {
         Connection.auth = Auth(account: account, token: token, expired: expired);
         Connection.connectToGameServer();
         if (!mounted) return;
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainMenuPage()));
+        final navigator = context.navigator;
+        while(navigator.canPop()){
+          navigator.pop();
+        }
+        navigator.push(MaterialPageRoute(builder: (_) => const MainMenuPage()));
         break;
     }
   }

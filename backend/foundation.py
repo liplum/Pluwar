@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from typing import Protocol, runtime_checkable, Callable, Awaitable
 
+import logger
 from encode import jsonEncode
 from user import AuthUser
 from websockets.legacy.server import WebSocketServerProtocol
@@ -79,6 +80,6 @@ class ChannelDispatcher:
                     data = json["data"]
                     await channel(ChannelContext(websocket, authUser, channelName), data)
                 else:
-                    print(f'Unknown channel "{channelName}"')
+                    logger.i(f'Unknown channel "{channelName}"')
         else:
             await self.authService.onUnauthorized(websocket, token=None)

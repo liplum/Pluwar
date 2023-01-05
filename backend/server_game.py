@@ -6,6 +6,7 @@ import websockets
 from websockets.legacy.server import WebSocketServerProtocol
 from websockets.connection import State
 import fs
+import logger
 import pluwar
 import user
 
@@ -21,7 +22,7 @@ async def handle(websocket: WebSocketServerProtocol):
     try:
         async for message in websocket:
             if websocket.state == State.OPEN:
-                print(f"Msg from {websocket.id}.")
+                logger.v(f"Msg from {websocket.id}.")
             try:
                 datapack = json.loads(message)
                 if isinstance(datapack, dict):
@@ -29,9 +30,9 @@ async def handle(websocket: WebSocketServerProtocol):
             except Exception as e:
                 traceback.print_exception(e)
     except Exception as e:
-        print(e)
+        logger.v(e)
     if websocket.state == State.CLOSED:
-        print(f"{websocket.id} is closed.")
+        logger.v(f"{websocket.id} is closed.")
 
 
 async def serve(authConnection, conf: dict | None = None):
