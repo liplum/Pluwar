@@ -1,4 +1,2 @@
-runtime_data
-config.game.json
-config.auth.json
-__pycache__
+/node_modules
+/dist

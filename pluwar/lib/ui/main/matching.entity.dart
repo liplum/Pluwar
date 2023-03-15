@@ -12,6 +12,7 @@ enum RoomFailedReason {
 
 @JsonSerializable()
 class RoomFailedPayload {
+  @JsonKey()
   final RoomFailedReason reason;
 
   const RoomFailedPayload(this.reason);
