@@ -1,4 +1,4 @@
-import { IPlayerState } from "../player.js"
-class InitialState implements IPlayerState {
+import { IUserState } from "../player.js"
+class InitialState implements IUserState {
 
 }
