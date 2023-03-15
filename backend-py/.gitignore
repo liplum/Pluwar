@@ -1,0 +1,4 @@
+runtime_data
+config.game.json
+config.auth.json
+__pycache__
