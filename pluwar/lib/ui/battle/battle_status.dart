@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rettulf/rettulf.dart';
 
 class BattleStatusPage extends StatelessWidget {
   final String elfName;
@@ -47,10 +48,7 @@ class BattleStatusPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                BattleHealthBar(
-                  currentHealth: hp,
-                  maxHealth: maxHp,
-                ),
+                BattleHealthBar(),
               ],
             ),
           ],
@@ -66,9 +64,8 @@ class AlliedStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 300,maxHeight: 200),
+      constraints: BoxConstraints(maxWidth: 300, maxHeight: 200),
       child: Container(
-
         alignment: Alignment.topLeft,
         child: BattleStatusPage(
           hp: 114,
@@ -87,9 +84,8 @@ class EnemyStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 300,maxHeight: 200),
+      constraints: BoxConstraints(maxWidth: 300, maxHeight: 200),
       child: Container(
-
         alignment: Alignment.topLeft,
         child: BattleStatusPage(
           hp: 810,
@@ -102,20 +98,33 @@ class EnemyStatus extends StatelessWidget {
   }
 }
 
-class BattleHealthBar extends StatelessWidget {
-  final double currentHealth;
-  final double maxHealth;
-
+class BattleHealthBar extends StatefulWidget {
   const BattleHealthBar({
     super.key,
-    required this.currentHealth,
-    required this.maxHealth,
   });
 
-  double get progress => currentHealth / maxHealth;
+  @override
+  State<StatefulWidget> createState() => BattleHealthBarState();
+}
+
+class BattleHealthBarState extends State<BattleHealthBar> {
+  late final double maxHP;
+  late final double currentHealth;
+
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      child: buildHealthBar(currentHealth, maxHP),
+
+
+      //setState((){ currentHealth = newHP})
+    );
+  }
+
+  Widget buildHealthBar(double currentHealth, double maxHealth) {
+    double progress = maxHealth / currentHealth;
     return LinearProgressIndicator(
       minHeight: 20,
       value: progress,
