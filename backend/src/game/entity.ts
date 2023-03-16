@@ -1,9 +1,8 @@
-import { Elf as ElfType } from "./type.js"
-
+import { Elf as ElfMeta } from "./meta.js"
 class Player {
 
 }
 
 class Elf {
-  type: ElfType
+  meta: ElfMeta
 }
