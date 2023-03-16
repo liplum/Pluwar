@@ -1,4 +1,8 @@
 /**
+ * Lifecycle:
+ * - Initialize: When the application is started
+ */
+/**
  * property = baseProperty + growProperty * level
  */
 export interface Elf<
@@ -23,4 +27,11 @@ export interface Elf<
   growSpeed: number
   /** E.g.: Fire, Water. */
   attribute: Attribute | Attribute[]
+}
+
+interface Ability {
+  /** The register name. */
+  name: string
+  validateCall: (ctx: any) => boolean
+  call: (ctx: any) => void
 }
